@@ -17,44 +17,75 @@
 
             <!--Assign Delivery Boy-->
             @if (\App\Addon::where('unique_identifier', 'delivery_boy')->first() != null &&
-                \App\Addon::where('unique_identifier', 'delivery_boy')->first()->activated)
-                <div class="col-md-3 ml-auto">
-                    <label for="assign_deliver_boy">{{translate('Assign Deliver Boy')}}</label>
-                    @if($delivery_status == 'pending' || $delivery_status == 'picked_up')
-                    <select class="form-control aiz-selectpicker" data-live-search="true" data-minimum-results-for-search="Infinity" id="assign_deliver_boy">
-                        <option value="">{{translate('Select Delivery Boy')}}</option>
-                        @foreach($delivery_boys as $delivery_boy)
-                        <option value="{{ $delivery_boy->id }}" @if($order->assign_delivery_boy == $delivery_boy->id) selected @endif>
-                            {{ $delivery_boy->name }}
-                        </option>
-                        @endforeach
-                    </select>
-                    @else
-                        <input type="text" class="form-control" value="{{ optional($order->delivery_boy)->name }}" disabled>
-                    @endif
-                </div>
+            \App\Addon::where('unique_identifier', 'delivery_boy')->first()->activated)
+            <div class="col-md-3 ml-auto">
+                <label for="assign_deliver_boy">{{translate('Assign Deliver Boy')}}</label>
+                @if($delivery_status == 'pending' || $delivery_status == 'picked_up')
+                <select class="form-control aiz-selectpicker" data-live-search="true"
+                    data-minimum-results-for-search="Infinity" id="assign_deliver_boy">
+                    <option value="">{{translate('Select Delivery Boy')}}</option>
+                    @foreach($delivery_boys as $delivery_boy)
+                    <option value="{{ $delivery_boy->id }}" @if($order->assign_delivery_boy == $delivery_boy->id)
+                        selected @endif>
+                        {{ $delivery_boy->name }}
+                    </option>
+                    @endforeach
+                </select>
+                @else
+                <input type="text" class="form-control" value="{{ optional($order->delivery_boy)->name }}" disabled>
+                @endif
+            </div>
             @endif
 
             <div class="col-md-3 ml-auto">
                 <label for=update_payment_status"">{{translate('Payment Status')}}</label>
-                <select class="form-control aiz-selectpicker"  data-minimum-results-for-search="Infinity" id="update_payment_status">
-                    <option value="unpaid" @if ($payment_status == 'unpaid') selected @endif>{{translate('Unpaid')}}</option>
-                    <option value="paid" @if ($payment_status == 'paid') selected @endif>{{translate('Paid')}}</option>
+                <select class="form-control aiz-selectpicker" data-minimum-results-for-search="Infinity"
+                    id="update_payment_status">
+                    @if ($payment_status=='paid')
+                    <option value="" disabled aria-disabled="true">{{translate('Unpaid')}}
+                    </option>
+                    @else
+                    <option value="unpaid" @if ($payment_status=='unpaid' ) selected @endif>{{translate('Unpaid')}}
+                    </option>
+                    @endif
+                    <option value="paid" @if ($payment_status=='paid' ) selected @endif>{{translate('Paid')}}</option>
                 </select>
             </div>
             <div class="col-md-3 ml-auto">
-                <label for=update_delivery_status"">{{translate('Delivery Status')}}</label>
+                <label for="update_delivery_status">{{translate('Delivery Status')}}</label>
                 @if($delivery_status != 'delivered' && $delivery_status != 'cancelled')
-                    <select class="form-control aiz-selectpicker"  data-minimum-results-for-search="Infinity" id="update_delivery_status">
-                        <option value="pending" @if ($delivery_status == 'pending') selected @endif>{{translate('Pending')}}</option>
-                        <option value="confirmed" @if ($delivery_status == 'confirmed') selected @endif>{{translate('Confirmed')}}</option>
-                        <option value="picked_up" @if ($delivery_status == 'picked_up') selected @endif>{{translate('Picked Up')}}</option>
-                        <option value="on_the_way" @if ($delivery_status == 'on_the_way') selected @endif>{{translate('On The Way')}}</option>
-                        <option value="delivered" @if ($delivery_status == 'delivered') selected @endif>{{translate('Delivered')}}</option>
-                        <option value="cancelled" @if ($delivery_status == 'cancelled') selected @endif>{{translate('Cancel')}}</option>
-                    </select>
+                <select class="form-control aiz-selectpicker" data-minimum-results-for-search="Infinity"
+                    id="update_delivery_status">
+                    @if ($payment_status=='paid')
+                    <option value="pending" @if ($delivery_status=='pending' ) selected
+                        @elseif($delivery_status=='confirmed' || $delivery_status=='picked_up' ||
+                        $delivery_status=='on_the_way' || $delivery_status=='on_delivery' ) disabled @endif>
+                        {{translate('Pending')}}
+                    </option>
+                    <option value="confirmed" @if ($delivery_status=='confirmed' ) selected
+                        @elseif($delivery_status=='picked_up' || $delivery_status=='on_the_way' ||
+                        $delivery_status=='on_delivery' ) disabled @endif>
+                        {{translate('Confirmed')}}</option>
+
+                    <option value="picked_up" @if ($delivery_status=='picked_up' ) selected
+                        @elseif($delivery_status=='on_the_way' || $delivery_status=='delivered' ||
+                        $delivery_status=='on_delivery' ) disabled @endif>
+                        {{translate('Picked Up')}}</option>
+
+                    <option value="on_the_way" @if ($delivery_status=='on_the_way' ) selected @endif>
+                        {{translate('On The Way')}}</option>
+
+                    <option value="delivered" @if ($delivery_status=='delivered' ) selected @endif>
+                        {{translate('Delivered')}}</option>
+
+                    <option value="cancelled" @if ($delivery_status=='cancelled' ) selected @endif>
+                        {{translate('Cancel')}}</option>
+                    @else
+                    <p>Admin belum melakukan konfirmasi pembayaran</p>
+                    @endif
+                </select>
                 @else
-                    <input type="text" class="form-control" value="{{ $delivery_status }}" disabled>
+                <input type="text" class="form-control" value="{{ $delivery_status }}" disabled>
                 @endif
             </div>
         </div>
@@ -64,15 +95,21 @@
                     <strong class="text-main">{{ json_decode($order->shipping_address)->name }}</strong><br>
                     {{ json_decode($order->shipping_address)->email }}<br>
                     {{ json_decode($order->shipping_address)->phone }}<br>
-                    {{ json_decode($order->shipping_address)->address }}, {{ json_decode($order->shipping_address)->city }}, {{ json_decode($order->shipping_address)->postal_code }}<br>
+                    {{ json_decode($order->shipping_address)->address }},
+                    {{ json_decode($order->shipping_address)->city }},
+                    {{ json_decode($order->shipping_address)->postal_code }}<br>
                     {{ json_decode($order->shipping_address)->country }}
                 </address>
                 @if ($order->manual_payment && is_array(json_decode($order->manual_payment_data, true)))
                 <br>
                 <strong class="text-main">{{ translate('Payment Information') }}</strong><br>
-                {{ translate('Name') }}: {{ json_decode($order->manual_payment_data)->name }}, {{ translate('Amount') }}: {{ single_price(json_decode($order->manual_payment_data)->amount) }}, {{ translate('TRX ID') }}: {{ json_decode($order->manual_payment_data)->trx_id }}
+                {{ translate('Name') }}: {{ json_decode($order->manual_payment_data)->name }},
+                {{ translate('Amount') }}: {{ single_price(json_decode($order->manual_payment_data)->amount) }},
+                {{ translate('TRX ID') }}: {{ json_decode($order->manual_payment_data)->trx_id }}
                 <br>
-                <a href="{{ uploaded_asset(json_decode($order->manual_payment_data)->photo) }}" target="_blank"><img src="{{ uploaded_asset(json_decode($order->manual_payment_data)->photo) }}" alt="" height="100"></a>
+                <a href="{{ uploaded_asset(json_decode($order->manual_payment_data)->photo) }}" target="_blank"><img
+                        src="{{ uploaded_asset(json_decode($order->manual_payment_data)->photo) }}" alt=""
+                        height="100"></a>
                 @endif
             </div>
             <div class="col-md-4 ml-auto">
@@ -80,20 +117,22 @@
                     <tbody>
                         <tr>
                             <td class="text-main text-bold">{{translate('Order #')}}</td>
-                            <td class="text-right text-info text-bold">	{{ $order->code }}</td>
+                            <td class="text-right text-info text-bold"> {{ $order->code }}</td>
                         </tr>
                         <tr>
                             <td class="text-main text-bold">{{translate('Order Status')}}</td>
                             <td class="text-right">
                                 @if($delivery_status == 'delivered')
-                                <span class="badge badge-inline badge-success">{{ translate(ucfirst(str_replace('_', ' ', $delivery_status))) }}</span>
+                                <span
+                                    class="badge badge-inline badge-success">{{ translate(ucfirst(str_replace('_', ' ', $delivery_status))) }}</span>
                                 @else
-                                <span class="badge badge-inline badge-info">{{ translate(ucfirst(str_replace('_', ' ', $delivery_status))) }}</span>
+                                <span
+                                    class="badge badge-inline badge-info">{{ translate(ucfirst(str_replace('_', ' ', $delivery_status))) }}</span>
                                 @endif
                             </td>
                         </tr>
                         <tr>
-                            <td class="text-main text-bold">{{translate('Order Date')}}	</td>
+                            <td class="text-main text-bold">{{translate('Order Date')}} </td>
                             <td class="text-right">{{ date('d-m-Y h:i A', $order->date) }}</td>
                         </tr>
                         <tr>
@@ -122,9 +161,12 @@
                             <th width="10%">{{translate('Photo')}}</th>
                             <th class="text-uppercase">{{translate('Description')}}</th>
                             <th data-breakpoints="lg" class="text-uppercase">{{translate('Delivery Type')}}</th>
-                            <th data-breakpoints="lg" class="min-col text-center text-uppercase">{{translate('Qty')}}</th>
-                            <th data-breakpoints="lg" class="min-col text-center text-uppercase">{{translate('Price')}}</th>
-                            <th data-breakpoints="lg" class="min-col text-right text-uppercase">{{translate('Total')}}</th>
+                            <th data-breakpoints="lg" class="min-col text-center text-uppercase">{{translate('Qty')}}
+                            </th>
+                            <th data-breakpoints="lg" class="min-col text-center text-uppercase">{{translate('Price')}}
+                            </th>
+                            <th data-breakpoints="lg" class="min-col text-right text-uppercase">{{translate('Total')}}
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -133,26 +175,31 @@
                             <td>{{ $key+1 }}</td>
                             <td>
                                 @if ($orderDetail->product != null)
-                                <a href="{{ route('product', $orderDetail->product->slug) }}" target="_blank"><img height="50" src="{{ uploaded_asset($orderDetail->product->thumbnail_img) }}"></a>
+                                <a href="{{ route('product', $orderDetail->product->slug) }}" target="_blank"><img
+                                        height="50"
+                                        src="{{ uploaded_asset($orderDetail->product->thumbnail_img) }}"></a>
                                 @else
                                 <strong>{{ translate('N/A') }}</strong>
                                 @endif
                             </td>
                             <td>
                                 @if ($orderDetail->product != null)
-                                <strong><a href="{{ route('product', $orderDetail->product->slug) }}" target="_blank" class="text-muted">{{ $orderDetail->product->getTranslation('name') }}</a></strong>
+                                <strong><a href="{{ route('product', $orderDetail->product->slug) }}" target="_blank"
+                                        class="text-muted">{{ $orderDetail->product->getTranslation('name') }}</a></strong>
                                 <small>{{ $orderDetail->variation }}</small>
                                 @else
                                 <strong>{{ translate('Product Unavailable') }}</strong>
                                 @endif
                             </td>
                             <td>
-                                @if ($orderDetail->shipping_type != null && $orderDetail->shipping_type == 'home_delivery')
+                                @if ($orderDetail->shipping_type != null && $orderDetail->shipping_type ==
+                                'home_delivery')
                                 {{ translate('Home Delivery') }}
                                 @elseif ($orderDetail->shipping_type == 'pickup_point')
 
                                 @if ($orderDetail->pickup_point != null)
-                                {{ $orderDetail->pickup_point->getTranslation('name') }} ({{ translate('Pickup Point') }})
+                                {{ $orderDetail->pickup_point->getTranslation('name') }}
+                                ({{ translate('Pickup Point') }})
                                 @else
                                 {{ translate('Pickup Point') }}
                                 @endif
@@ -213,7 +260,8 @@
                 </tbody>
             </table>
             <div class="text-right no-print">
-                <a href="{{ route('invoice.download', $order->id) }}" type="button" class="btn btn-icon btn-light"><i class="las la-print"></i></a>
+                <a href="{{ route('invoice.download', $order->id) }}" type="button" class="btn btn-icon btn-light"><i
+                        class="las la-print"></i></a>
             </div>
         </div>
 
@@ -222,8 +270,8 @@
 @endsection
 
 @section('script')
-    <script type="text/javascript">
-        $('#assign_deliver_boy').on('change', function(){
+<script type="text/javascript">
+    $('#assign_deliver_boy').on('change', function(){
             var order_id = {{ $order->id }};
             var delivery_boy = $('#assign_deliver_boy').val();
             $.post('{{ route('orders.delivery-boy-assign') }}', {
@@ -232,6 +280,7 @@
                 delivery_boy    :delivery_boy
             }, function(data){
                 AIZ.plugins.notify('success', '{{ translate('Delivery boy has been assigned') }}');
+                location.reload().setTimeOut(500)
             });
         });
 
@@ -244,6 +293,7 @@
                 status:status
             }, function(data){
                 AIZ.plugins.notify('success', '{{ translate('Delivery status has been updated') }}');
+                location.reload().setTimeOut(500)
             });
         });
 
@@ -252,7 +302,8 @@
             var status = $('#update_payment_status').val();
             $.post('{{ route('orders.update_payment_status') }}', {_token:'{{ @csrf_token() }}',order_id:order_id,status:status}, function(data){
                 AIZ.plugins.notify('success', '{{ translate('Payment status has been updated') }}');
+                location.reload().setTimeOut(500)
             });
         });
-    </script>
+</script>
 @endsection

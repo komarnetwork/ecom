@@ -23,15 +23,17 @@
                     <div class="form-group row">
                         <label class="col-md-3 col-from-label">{{translate('Product Name')}}</label>
                         <div class="col-md-8">
-                            <input type="text" class="form-control" name="name"
-                                placeholder="{{ translate('Product Name') }}" onchange="update_sku()" required>
+                            <input type="text" class="form-control @error('name')
+                            @enderror" name="name" placeholder="{{ translate('Product Name') }}"
+                                onchange="update_sku()" required>
                         </div>
                     </div>
                     <div class="form-group row" id="category">
                         <label class="col-md-3 col-from-label">{{translate('Category')}}</label>
                         <div class="col-md-8">
-                            <select class="form-control aiz-selectpicker" name="category_id" id="category_id"
-                                data-live-search="true" required>
+                            <select class="form-control @error('category_id')
+                            @enderror aiz-selectpicker" name="category_id" id="category_id" data-live-search="true"
+                                required>
                                 @foreach ($categories as $category)
                                 <option value="{{ $category->id }}">{{ $category->getTranslation('name') }}</option>
                                 @foreach ($category->childrenCategories as $childCategory)
@@ -44,10 +46,10 @@
                     <div class="form-group row" id="brand">
                         <label class="col-md-3 col-from-label">{{translate('Brand')}}</label>
                         <div class="col-md-8">
-                            <select class="form-control aiz-selectpicker" name="brand_id" id="brand_id"
-                                data-live-search="true">
+                            <select class="form-control @error('brand_id')
+                            @enderror aiz-selectpicker" name="brand_id" id="brand_id" data-live-search="true" required>
                                 <option value="">{{ translate('Select Brand') }}</option>
-                                @foreach (\App\Brand::all() as $brand)
+                                @foreach (\App\Brand::with('brand_translations')->get() as $brand)
                                 <option value="{{ $brand->id }}">{{ $brand->getTranslation('name') }}</option>
                                 @endforeach
                             </select>
@@ -56,8 +58,14 @@
                     <div class="form-group row">
                         <label class="col-md-3 col-from-label">{{translate('Unit')}}</label>
                         <div class="col-md-8">
-                            <input type="text" class="form-control" name="unit"
-                                placeholder="{{ translate('Unit (e.g. KG, Pc etc)') }}" required>
+                            {{-- <input type="text" class="form-control" name="unit"
+                                placeholder="{{ translate('Unit (e.g. KG, Pc etc)') }}" required> --}}
+
+                            <select class="form-control @error('unit')
+                                @enderror aiz-selectpicker" name="unit" id="unit" data-live-search="true" required>
+                                <option value="Pc">Pc</option>
+                                <option value="Pc">Kg</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -70,8 +78,9 @@
                     <div class="form-group row">
                         <label class="col-md-3 col-from-label">{{translate('Tags')}}</label>
                         <div class="col-md-8">
-                            <input type="text" class="form-control aiz-tag-input" name="tags[]"
-                                placeholder="{{ translate('Type and hit enter to add a tag') }}">
+                            <input type="text" class="form-control @error('tags[]')
+                            @enderror aiz-tag-input" name="tags[]"
+                                placeholder="{{ translate('Type and hit enter to add a tag') }}" required>
                         </div>
                     </div>
 
@@ -118,7 +127,8 @@
                                     <div class="input-group-text bg-soft-secondary font-weight-medium">
                                         {{ translate('Browse')}}</div>
                                 </div>
-                                <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                <div class="form-control @error('photos')
+                                @enderror file-amount" required>{{ translate('Choose File') }}</div>
                                 <input type="hidden" name="photos" class="selected-files">
                             </div>
                             <div class="file-preview box sm">
@@ -134,7 +144,8 @@
                                     <div class="input-group-text bg-soft-secondary font-weight-medium">
                                         {{ translate('Browse')}}</div>
                                 </div>
-                                <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                <div class="form-control @error('photos')
+                                @enderror file-amount" required>{{ translate('Choose File') }}</div>
                                 <input type="hidden" name="thumbnail_img" class="selected-files">
                             </div>
                             <div class="file-preview box sm">
@@ -233,7 +244,7 @@
                                 required>
                         </div>
                     </div>
-<!--                    <div class="form-group row">
+                    <!--                    <div class="form-group row">
                         <label class="col-md-3 col-from-label">{{translate('Purchase price')}}</label>
                         <div class="col-md-6">
                             <input type="number" lang="en" min="0" value="0" step="0.01"

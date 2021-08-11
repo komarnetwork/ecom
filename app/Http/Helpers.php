@@ -28,7 +28,7 @@ use App\Order;
 use App\User;
 
 //highlights the selected navigation on admin panel
-if (! function_exists('sendSMS')) {
+if (!function_exists('sendSMS')) {
     function sendSMS($to, $from, $text, $template_id)
     {
         if (OtpConfiguration::where('type', 'nexmo')->first()->value == 1) {
@@ -62,26 +62,22 @@ if (! function_exists('sendSMS')) {
             curl_close($ch);
 
             return $response;
-        }
-        elseif (OtpConfiguration::where('type', 'twillo')->first()->value == 1) {
+        } elseif (OtpConfiguration::where('type', 'twillo')->first()->value == 1) {
             $sid = env("TWILIO_SID"); // Your Account SID from www.twilio.com/console
             $token = env("TWILIO_AUTH_TOKEN"); // Your Auth Token from www.twilio.com/console
 
             $client = new Client($sid, $token);
             try {
                 $message = $client->messages->create(
-                  $to, // Text this number
-                  array(
-                    'from' => env('VALID_TWILLO_NUMBER'), // From a valid Twilio number
-                    'body' => $text
-                  )
+                    $to, // Text this number
+                    array(
+                        'from' => env('VALID_TWILLO_NUMBER'), // From a valid Twilio number
+                        'body' => $text
+                    )
                 );
             } catch (\Exception $e) {
-
             }
-
-        }
-        elseif (OtpConfiguration::where('type', 'ssl_wireless')->first()->value == 1) {
+        } elseif (OtpConfiguration::where('type', 'ssl_wireless')->first()->value == 1) {
             $token = env("SSL_SMS_API_TOKEN"); //put ssl provided api_token here
             $sid = env("SSL_SMS_SID"); // put ssl provided sid here
 
@@ -90,7 +86,7 @@ if (! function_exists('sendSMS')) {
                 "sid" => $sid,
                 "msisdn" => $to,
                 "sms" => $text,
-                "csms_id" => date('dmYhhmi').rand(10000, 99999)
+                "csms_id" => date('dmYhhmi') . rand(10000, 99999)
             ];
 
             $url = env("SSL_SMS_URL");
@@ -114,14 +110,13 @@ if (! function_exists('sendSMS')) {
             curl_close($ch);
 
             return $response;
-        }
-        elseif (OtpConfiguration::where('type', 'fast2sms')->first()->value == 1) {
+        } elseif (OtpConfiguration::where('type', 'fast2sms')->first()->value == 1) {
 
-            if(strpos($to, '+91') !== false){
+            if (strpos($to, '+91') !== false) {
                 $to = substr($to, 3);
             }
 
-            if(env("ROUTE") == 'dlt_manual'){
+            if (env("ROUTE") == 'dlt_manual') {
                 $fields = array(
                     "sender_id" => env("SENDER_ID"),
                     "message" => $text,
@@ -131,8 +126,7 @@ if (! function_exists('sendSMS')) {
                     "route" => env("ROUTE"),
                     "numbers" => $to,
                 );
-            }
-            else {
+            } else {
                 $fields = array(
                     "sender_id" => env("SENDER_ID"),
                     "message" => $text,
@@ -148,22 +142,22 @@ if (! function_exists('sendSMS')) {
             $curl = curl_init();
 
             curl_setopt_array($curl, array(
-              CURLOPT_URL => "https://www.fast2sms.com/dev/bulkV2",
-              CURLOPT_RETURNTRANSFER => true,
-              CURLOPT_ENCODING => "",
-              CURLOPT_MAXREDIRS => 10,
-              CURLOPT_TIMEOUT => 30,
-              CURLOPT_SSL_VERIFYHOST => 0,
-              CURLOPT_SSL_VERIFYPEER => 0,
-              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-              CURLOPT_CUSTOMREQUEST => "POST",
-              CURLOPT_POSTFIELDS => json_encode($fields),
-              CURLOPT_HTTPHEADER => array(
-                "authorization: $auth_key",
-                "accept: */*",
-                "cache-control: no-cache",
-                "content-type: application/json"
-              ),
+                CURLOPT_URL => "https://www.fast2sms.com/dev/bulkV2",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => json_encode($fields),
+                CURLOPT_HTTPHEADER => array(
+                    "authorization: $auth_key",
+                    "accept: */*",
+                    "cache-control: no-cache",
+                    "content-type: application/json"
+                ),
             ));
 
             $response = curl_exec($curl);
@@ -172,8 +166,7 @@ if (! function_exists('sendSMS')) {
             curl_close($curl);
 
             return $response;
-        }
-        elseif(OtpConfiguration::where('type', 'mimo')->first()->value == 1) {
+        } elseif (OtpConfiguration::where('type', 'mimo')->first()->value == 1) {
             $token = MimoUtility::getToken();
 
             MimoUtility::sendMessage($text, $to, $token);
@@ -183,29 +176,27 @@ if (! function_exists('sendSMS')) {
 }
 
 //highlights the selected navigation on admin panel
-if (! function_exists('areActiveRoutes')) {
-    function areActiveRoutes(Array $routes, $output = "active")
+if (!function_exists('areActiveRoutes')) {
+    function areActiveRoutes(array $routes, $output = "active")
     {
         foreach ($routes as $route) {
             if (Route::currentRouteName() == $route) return $output;
         }
-
     }
 }
 
 //highlights the selected navigation on frontend
-if (! function_exists('areActiveRoutesHome')) {
-    function areActiveRoutesHome(Array $routes, $output = "active")
+if (!function_exists('areActiveRoutesHome')) {
+    function areActiveRoutesHome(array $routes, $output = "active")
     {
         foreach ($routes as $route) {
             if (Route::currentRouteName() == $route) return $output;
         }
-
     }
 }
 
 //highlights the selected navigation on frontend
-if (! function_exists('default_language')) {
+if (!function_exists('default_language')) {
     function default_language()
     {
         return env("DEFAULT_LANGUAGE");
@@ -215,21 +206,23 @@ if (! function_exists('default_language')) {
 /**
  * Save JSON File
  * @return Response
-*/
-if (! function_exists('convert_to_usd')) {
-    function convert_to_usd($amount) {
+ */
+if (!function_exists('convert_to_usd')) {
+    function convert_to_usd($amount)
+    {
         $business_settings = BusinessSetting::where('type', 'system_default_currency')->first();
-        if($business_settings!=null){
+        if ($business_settings != null) {
             $currency = Currency::find($business_settings->value);
             return (floatval($amount) / floatval($currency->exchange_rate)) * Currency::where('code', 'USD')->first()->exchange_rate;
         }
     }
 }
 
-if (! function_exists('convert_to_kes')) {
-    function convert_to_kes($amount) {
+if (!function_exists('convert_to_kes')) {
+    function convert_to_kes($amount)
+    {
         $business_settings = BusinessSetting::where('type', 'system_default_currency')->first();
-        if($business_settings!=null){
+        if ($business_settings != null) {
             $currency = Currency::find($business_settings->value);
             return (floatval($amount) / floatval($currency->exchange_rate)) * Currency::where('code', 'KES')->first()->exchange_rate;
         }
@@ -237,46 +230,45 @@ if (! function_exists('convert_to_kes')) {
 }
 
 //filter products based on vendor activation system
-if (! function_exists('filter_products')) {
-    function filter_products($products) {
+if (!function_exists('filter_products')) {
+    function filter_products($products)
+    {
         $verified_sellers = verified_sellers_id();
-        if(BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1){
-            return $products->where('approved', '1')->where('published', '1')->orderBy('created_at', 'desc')->where(function($p) use ($verified_sellers){
-                $p->where('added_by', 'admin')->orWhere(function($q) use ($verified_sellers){
+        if (BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1) {
+            return $products->where('approved', '1')->where('published', '1')->orderBy('created_at', 'desc')->where(function ($p) use ($verified_sellers) {
+                $p->where('added_by', 'admin')->orWhere(function ($q) use ($verified_sellers) {
                     $q->whereIn('user_id', $verified_sellers);
                 });
             });
-        }
-        else{
+        } else {
             return $products->where('published', '1')->where('added_by', 'admin');
         }
     }
 }
 
 //cache products based on category
-if (! function_exists('get_cached_products')) {
-    function get_cached_products($category_id = null) {
-        $products = \App\Product::where('published', 1)->where('approved', '1');
+if (!function_exists('get_cached_products')) {
+    function get_cached_products($category_id = null)
+    {
+        $products = \App\Product::with('product_translations', 'category', 'brand', 'user', 'orderDetails', 'reviews', 'wishlists', 'stocks', 'taxes')->where('published', 1)->where('approved', '1');
         $verified_sellers = verified_sellers_id();
-        if(BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1){
-            $products =  $products->where(function($p) use ($verified_sellers){
-                $p->where('added_by', 'admin')->orWhere(function($q) use ($verified_sellers){
+        if (BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1) {
+            $products =  $products->where(function ($p) use ($verified_sellers) {
+                $p->where('added_by', 'admin')->orWhere(function ($q) use ($verified_sellers) {
                     $q->whereIn('user_id', $verified_sellers);
                 });
             });
-        }
-        else{
+        } else {
             $products = $products->where('added_by', 'admin');
         }
 
         if ($category_id != null) {
-            return Cache::remember('products-category-'.$category_id, 86400, function () use ($category_id, $products) {
+            return Cache::remember('products-category-' . $category_id, 86400, function () use ($category_id, $products) {
                 $category_ids = CategoryUtility::children_ids($category_id);
                 $category_ids[] = $category_id;
                 return $products->whereIn('category_id', $category_ids)->latest()->take(12)->get();
             });
-        }
-        else {
+        } else {
             return Cache::remember('products', 86400, function () use ($products) {
                 return $products->latest()->get();
             });
@@ -284,27 +276,27 @@ if (! function_exists('get_cached_products')) {
     }
 }
 
-if (! function_exists('verified_sellers_id')) {
-    function verified_sellers_id() {
+if (!function_exists('verified_sellers_id')) {
+    function verified_sellers_id()
+    {
         return App\Seller::where('verification_status', 1)->get()->pluck('user_id')->toArray();
     }
 }
 
 //converts currency to home default currency
-if (! function_exists('convert_price')) {
+if (!function_exists('convert_price')) {
     function convert_price($price)
     {
         $business_settings = BusinessSetting::where('type', 'system_default_currency')->first();
-        if($business_settings != null){
+        if ($business_settings != null) {
             $currency = Currency::find($business_settings->value);
             $price = floatval($price) / floatval($currency->exchange_rate);
         }
 
         $code = \App\Currency::findOrFail(get_setting('system_default_currency'))->code;
-        if(Session::has('currency_code')){
+        if (Session::has('currency_code')) {
             $currency = Currency::where('code', Session::get('currency_code', $code))->first();
-        }
-        else{
+        } else {
             $currency = Currency::where('code', $code)->first();
         }
 
@@ -315,30 +307,28 @@ if (! function_exists('convert_price')) {
 }
 
 //formats currency
-if (! function_exists('format_price')) {
+if (!function_exists('format_price')) {
     function format_price($price)
     {
         if (get_setting('decimal_separator') == 1) {
             $fomated_price = number_format($price, get_setting('no_of_decimals'));
-        }
-        else {
-            $fomated_price = number_format($price, get_setting('no_of_decimals'), ',' , ' ');
+        } else {
+            $fomated_price = number_format($price, get_setting('no_of_decimals'), ',', ' ');
         }
 
-        if(get_setting('symbol_format') == 1){
-            return currency_symbol().$fomated_price;
-        } else if(get_setting('symbol_format') == 3){
-            return currency_symbol().' '.$fomated_price;
-        } else if(get_setting('symbol_format') == 4) {
-            return $fomated_price.' '.currency_symbol();
+        if (get_setting('symbol_format') == 1) {
+            return currency_symbol() . $fomated_price;
+        } else if (get_setting('symbol_format') == 3) {
+            return currency_symbol() . ' ' . $fomated_price;
+        } else if (get_setting('symbol_format') == 4) {
+            return $fomated_price . ' ' . currency_symbol();
         }
-        return $fomated_price.currency_symbol();
-
+        return $fomated_price . currency_symbol();
     }
 }
 
 //formats price to home default price with convertion
-if (! function_exists('single_price')) {
+if (!function_exists('single_price')) {
     function single_price($price)
     {
         return format_price(convert_price($price));
@@ -346,7 +336,7 @@ if (! function_exists('single_price')) {
 }
 
 //Shows Price on page based on low to high
-if (! function_exists('home_price')) {
+if (!function_exists('home_price')) {
     function home_price($product)
     {
         $lowest_price = $product->unit_price;
@@ -354,21 +344,20 @@ if (! function_exists('home_price')) {
 
         if ($product->variant_product) {
             foreach ($product->stocks as $key => $stock) {
-                if($lowest_price > $stock->price){
+                if ($lowest_price > $stock->price) {
                     $lowest_price = $stock->price;
                 }
-                if($highest_price < $stock->price){
+                if ($highest_price < $stock->price) {
                     $highest_price = $stock->price;
                 }
             }
         }
 
         foreach ($product->taxes as $product_tax) {
-            if($product_tax->tax_type == 'percent'){
+            if ($product_tax->tax_type == 'percent') {
                 $lowest_price += ($lowest_price * $product_tax->tax) / 100;
                 $highest_price += ($highest_price * $product_tax->tax) / 100;
-            }
-            elseif($product_tax->tax_type == 'amount'){
+            } elseif ($product_tax->tax_type == 'amount') {
                 $lowest_price += $product_tax->tax;
                 $highest_price += $product_tax->tax;
             }
@@ -377,17 +366,16 @@ if (! function_exists('home_price')) {
         $lowest_price = convert_price($lowest_price);
         $highest_price = convert_price($highest_price);
 
-        if($lowest_price == $highest_price){
+        if ($lowest_price == $highest_price) {
             return format_price($lowest_price);
-        }
-        else{
-            return format_price($lowest_price).' - '.format_price($highest_price);
+        } else {
+            return format_price($lowest_price) . ' - ' . format_price($highest_price);
         }
     }
 }
 
 //Shows Price on page based on low to high with discount
-if (! function_exists('home_discounted_price')) {
+if (!function_exists('home_discounted_price')) {
     function home_discounted_price($product)
     {
         $lowest_price = $product->unit_price;
@@ -395,10 +383,10 @@ if (! function_exists('home_discounted_price')) {
 
         if ($product->variant_product) {
             foreach ($product->stocks as $key => $stock) {
-                if($lowest_price > $stock->price){
+                if ($lowest_price > $stock->price) {
                     $lowest_price = $stock->price;
                 }
-                if($highest_price < $stock->price){
+                if ($highest_price < $stock->price) {
                     $highest_price = $stock->price;
                 }
             }
@@ -408,29 +396,28 @@ if (! function_exists('home_discounted_price')) {
 
         if ($product->discount_start_date == null) {
             $discount_applicable = true;
-        }
-        elseif (strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
-            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date) {
+        } elseif (
+            strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
+            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date
+        ) {
             $discount_applicable = true;
         }
 
         if ($discount_applicable) {
-            if($product->discount_type == 'percent'){
-                $lowest_price -= ($lowest_price*$product->discount)/100;
-                $highest_price -= ($highest_price*$product->discount)/100;
-            }
-            elseif($product->discount_type == 'amount'){
+            if ($product->discount_type == 'percent') {
+                $lowest_price -= ($lowest_price * $product->discount) / 100;
+                $highest_price -= ($highest_price * $product->discount) / 100;
+            } elseif ($product->discount_type == 'amount') {
                 $lowest_price -= $product->discount;
                 $highest_price -= $product->discount;
             }
         }
 
         foreach ($product->taxes as $product_tax) {
-            if($product_tax->tax_type == 'percent'){
+            if ($product_tax->tax_type == 'percent') {
                 $lowest_price += ($lowest_price * $product_tax->tax) / 100;
                 $highest_price += ($highest_price * $product_tax->tax) / 100;
-            }
-            elseif($product_tax->tax_type == 'amount'){
+            } elseif ($product_tax->tax_type == 'amount') {
                 $lowest_price += $product_tax->tax;
                 $highest_price += $product_tax->tax;
             }
@@ -439,28 +426,26 @@ if (! function_exists('home_discounted_price')) {
         $lowest_price = convert_price($lowest_price);
         $highest_price = convert_price($highest_price);
 
-        if($lowest_price == $highest_price){
+        if ($lowest_price == $highest_price) {
             return format_price($lowest_price);
-        }
-        else{
-            return format_price($lowest_price).' - '.format_price($highest_price);
+        } else {
+            return format_price($lowest_price) . ' - ' . format_price($highest_price);
         }
     }
 }
 
 //Shows Base Price
-if (! function_exists('home_base_price_by_stock_id')) {
+if (!function_exists('home_base_price_by_stock_id')) {
     function home_base_price_by_stock_id($id)
     {
-        $product_stock = ProductStock::findOrFail($id);
+        $product_stock = ProductStock::with('product')->findOrFail($id);
         $price = $product_stock->price;
         $tax = 0;
 
         foreach ($product_stock->product->taxes as $product_tax) {
-            if($product_tax->tax_type == 'percent'){
+            if ($product_tax->tax_type == 'percent') {
                 $tax += ($price * $product_tax->tax) / 100;
-            }
-            elseif($product_tax->tax_type == 'amount'){
+            } elseif ($product_tax->tax_type == 'amount') {
                 $tax += $product_tax->tax;
             }
         }
@@ -468,17 +453,16 @@ if (! function_exists('home_base_price_by_stock_id')) {
         return format_price(convert_price($price));
     }
 }
-if (! function_exists('home_base_price')) {
+if (!function_exists('home_base_price')) {
     function home_base_price($product)
     {
         $price = $product->unit_price;
         $tax = 0;
 
         foreach ($product->taxes as $product_tax) {
-            if($product_tax->tax_type == 'percent'){
+            if ($product_tax->tax_type == 'percent') {
                 $tax += ($price * $product_tax->tax) / 100;
-            }
-            elseif($product_tax->tax_type == 'amount'){
+            } elseif ($product_tax->tax_type == 'amount') {
                 $tax += $product_tax->tax;
             }
         }
@@ -488,10 +472,10 @@ if (! function_exists('home_base_price')) {
 }
 
 //Shows Base Price with discount
-if (! function_exists('home_discounted_base_price_by_stock_id')) {
+if (!function_exists('home_discounted_base_price_by_stock_id')) {
     function home_discounted_base_price_by_stock_id($id)
     {
-        $product_stock = ProductStock::findOrFail($id);
+        $product_stock = ProductStock::with('product')->findOrFail($id);
         $product = $product_stock->product;
         $price = $product_stock->price;
         $tax = 0;
@@ -500,26 +484,25 @@ if (! function_exists('home_discounted_base_price_by_stock_id')) {
 
         if ($product->discount_start_date == null) {
             $discount_applicable = true;
-        }
-        elseif (strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
-            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date) {
+        } elseif (
+            strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
+            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date
+        ) {
             $discount_applicable = true;
         }
 
         if ($discount_applicable) {
-            if($product->discount_type == 'percent'){
-                $price -= ($price*$product->discount)/100;
-            }
-            elseif($product->discount_type == 'amount'){
+            if ($product->discount_type == 'percent') {
+                $price -= ($price * $product->discount) / 100;
+            } elseif ($product->discount_type == 'amount') {
                 $price -= $product->discount;
             }
         }
 
         foreach ($product->taxes as $product_tax) {
-            if($product_tax->tax_type == 'percent'){
+            if ($product_tax->tax_type == 'percent') {
                 $tax += ($price * $product_tax->tax) / 100;
-            }
-            elseif($product_tax->tax_type == 'amount'){
+            } elseif ($product_tax->tax_type == 'amount') {
                 $tax += $product_tax->tax;
             }
         }
@@ -529,7 +512,7 @@ if (! function_exists('home_discounted_base_price_by_stock_id')) {
     }
 }
 //Shows Base Price with discount
-if (! function_exists('home_discounted_base_price')) {
+if (!function_exists('home_discounted_base_price')) {
     function home_discounted_base_price($product)
     {
         $price = $product->unit_price;
@@ -539,26 +522,25 @@ if (! function_exists('home_discounted_base_price')) {
 
         if ($product->discount_start_date == null) {
             $discount_applicable = true;
-        }
-        elseif (strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
-            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date) {
+        } elseif (
+            strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
+            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date
+        ) {
             $discount_applicable = true;
         }
 
         if ($discount_applicable) {
-            if($product->discount_type == 'percent'){
-                $price -= ($price*$product->discount)/100;
-            }
-            elseif($product->discount_type == 'amount'){
+            if ($product->discount_type == 'percent') {
+                $price -= ($price * $product->discount) / 100;
+            } elseif ($product->discount_type == 'amount') {
                 $price -= $product->discount;
             }
         }
 
         foreach ($product->taxes as $product_tax) {
-            if($product_tax->tax_type == 'percent'){
+            if ($product_tax->tax_type == 'percent') {
                 $tax += ($price * $product_tax->tax) / 100;
-            }
-            elseif($product_tax->tax_type == 'amount'){
+            } elseif ($product_tax->tax_type == 'amount') {
                 $tax += $product_tax->tax;
             }
         }
@@ -568,65 +550,64 @@ if (! function_exists('home_discounted_base_price')) {
     }
 }
 
-if (! function_exists('currency_symbol')) {
+if (!function_exists('currency_symbol')) {
     function currency_symbol()
     {
         $code = \App\Currency::findOrFail(get_setting('system_default_currency'))->code;
-        if(Session::has('currency_code')){
+        if (Session::has('currency_code')) {
             $currency = Currency::where('code', Session::get('currency_code', $code))->first();
-        }
-        else{
+        } else {
             $currency = Currency::where('code', $code)->first();
         }
         return $currency->symbol;
     }
 }
 
-if(! function_exists('renderStarRating')){
-    function renderStarRating($rating,$maxRating=5) {
+if (!function_exists('renderStarRating')) {
+    function renderStarRating($rating, $maxRating = 5)
+    {
         $fullStar = "<i class = 'las la-star active'></i>";
         $halfStar = "<i class = 'las la-star half'></i>";
         $emptyStar = "<i class = 'las la-star'></i>";
-        $rating = $rating <= $maxRating?$rating:$maxRating;
+        $rating = $rating <= $maxRating ? $rating : $maxRating;
 
         $fullStarCount = (int)$rating;
-        $halfStarCount = ceil($rating)-$fullStarCount;
-        $emptyStarCount = $maxRating -$fullStarCount-$halfStarCount;
+        $halfStarCount = ceil($rating) - $fullStarCount;
+        $emptyStarCount = $maxRating - $fullStarCount - $halfStarCount;
 
-        $html = str_repeat($fullStar,$fullStarCount);
-        $html .= str_repeat($halfStar,$halfStarCount);
-        $html .= str_repeat($emptyStar,$emptyStarCount);
+        $html = str_repeat($fullStar, $fullStarCount);
+        $html .= str_repeat($halfStar, $halfStarCount);
+        $html .= str_repeat($emptyStar, $emptyStarCount);
         echo $html;
     }
 }
 
 
 //Api
-if (! function_exists('homeBasePrice')) {
+if (!function_exists('homeBasePrice')) {
     function homeBasePrice($product)
     {
         $price = $product->unit_price;
         $tax = 0;
         foreach ($product->taxes as $product_tax) {
-            if($product_tax->tax_type == 'percent'){
+            if ($product_tax->tax_type == 'percent') {
                 $tax += ($price * $product_tax->tax) / 100;
-            }
-            elseif($product_tax->tax_type == 'amount'){
+            } elseif ($product_tax->tax_type == 'amount') {
                 $tax += $product_tax->tax;
             }
         }
 
         $price += $tax;
-//        if ($product->tax_type == 'percent') {
-//            $price += ($price * $product->tax) / 100;
-//        } elseif ($product->tax_type == 'amount') {
-//            $price += $product->tax;
-//        }
+        //        if ($product->tax_type == 'percent') {
+        //            $price += ($price * $product->tax) / 100;
+        //        } elseif ($product->tax_type == 'amount') {
+        //            $price += $product->tax;
+        //        }
         return $price;
     }
 }
 
-if (! function_exists('homeDiscountedBasePrice')) {
+if (!function_exists('homeDiscountedBasePrice')) {
     function homeDiscountedBasePrice($product)
     {
         $price = $product->unit_price;
@@ -636,26 +617,25 @@ if (! function_exists('homeDiscountedBasePrice')) {
 
         if ($product->discount_start_date == null) {
             $discount_applicable = true;
-        }
-        elseif (strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
-            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date) {
+        } elseif (
+            strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
+            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date
+        ) {
             $discount_applicable = true;
         }
 
         if ($discount_applicable) {
-            if($product->discount_type == 'percent'){
-                $price -= ($price*$product->discount)/100;
-            }
-            elseif($product->discount_type == 'amount'){
+            if ($product->discount_type == 'percent') {
+                $price -= ($price * $product->discount) / 100;
+            } elseif ($product->discount_type == 'amount') {
                 $price -= $product->discount;
             }
         }
 
         foreach ($product->taxes as $product_tax) {
-            if($product_tax->tax_type == 'percent'){
+            if ($product_tax->tax_type == 'percent') {
                 $tax += ($price * $product_tax->tax) / 100;
-            }
-            elseif($product_tax->tax_type == 'amount'){
+            } elseif ($product_tax->tax_type == 'amount') {
                 $tax += $product_tax->tax;
             }
         }
@@ -664,7 +644,7 @@ if (! function_exists('homeDiscountedBasePrice')) {
     }
 }
 
-if (! function_exists('homePrice')) {
+if (!function_exists('homePrice')) {
     function homePrice($product)
     {
         $lowest_price = $product->unit_price;
@@ -673,29 +653,28 @@ if (! function_exists('homePrice')) {
 
         if ($product->variant_product) {
             foreach ($product->stocks as $key => $stock) {
-                if($lowest_price > $stock->price){
+                if ($lowest_price > $stock->price) {
                     $lowest_price = $stock->price;
                 }
-                if($highest_price < $stock->price){
+                if ($highest_price < $stock->price) {
                     $highest_price = $stock->price;
                 }
             }
         }
 
-//        if ($product->tax_type == 'percent') {
-//            $lowest_price += ($lowest_price*$product->tax)/100;
-//            $highest_price += ($highest_price*$product->tax)/100;
-//        }
-//        elseif ($product->tax_type == 'amount') {
-//            $lowest_price += $product->tax;
-//            $highest_price += $product->tax;
-//        }
+        //        if ($product->tax_type == 'percent') {
+        //            $lowest_price += ($lowest_price*$product->tax)/100;
+        //            $highest_price += ($highest_price*$product->tax)/100;
+        //        }
+        //        elseif ($product->tax_type == 'amount') {
+        //            $lowest_price += $product->tax;
+        //            $highest_price += $product->tax;
+        //        }
         foreach ($product->taxes as $product_tax) {
-            if($product_tax->tax_type == 'percent'){
+            if ($product_tax->tax_type == 'percent') {
                 $lowest_price += ($lowest_price * $product_tax->tax) / 100;
                 $highest_price += ($highest_price * $product_tax->tax) / 100;
-            }
-            elseif($product_tax->tax_type == 'amount'){
+            } elseif ($product_tax->tax_type == 'amount') {
                 $lowest_price += $product_tax->tax;
                 $highest_price += $product_tax->tax;
             }
@@ -704,11 +683,11 @@ if (! function_exists('homePrice')) {
         $lowest_price = convertPrice($lowest_price);
         $highest_price = convertPrice($highest_price);
 
-        return $lowest_price.' - '.$highest_price;
+        return $lowest_price . ' - ' . $highest_price;
     }
 }
 
-if (! function_exists('homeDiscountedPrice')) {
+if (!function_exists('homeDiscountedPrice')) {
     function homeDiscountedPrice($product)
     {
         $lowest_price = $product->unit_price;
@@ -716,10 +695,10 @@ if (! function_exists('homeDiscountedPrice')) {
 
         if ($product->variant_product) {
             foreach ($product->stocks as $key => $stock) {
-                if($lowest_price > $stock->price){
+                if ($lowest_price > $stock->price) {
                     $lowest_price = $stock->price;
                 }
-                if($highest_price < $stock->price){
+                if ($highest_price < $stock->price) {
                     $highest_price = $stock->price;
                 }
             }
@@ -729,29 +708,28 @@ if (! function_exists('homeDiscountedPrice')) {
 
         if ($product->discount_start_date == null) {
             $discount_applicable = true;
-        }
-        elseif (strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
-            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date) {
+        } elseif (
+            strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
+            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date
+        ) {
             $discount_applicable = true;
         }
 
         if ($discount_applicable) {
-            if($product->discount_type == 'percent'){
-                $lowest_price -= ($lowest_price*$product->discount)/100;
-                $highest_price -= ($highest_price*$product->discount)/100;
-            }
-            elseif($product->discount_type == 'amount'){
+            if ($product->discount_type == 'percent') {
+                $lowest_price -= ($lowest_price * $product->discount) / 100;
+                $highest_price -= ($highest_price * $product->discount) / 100;
+            } elseif ($product->discount_type == 'amount') {
                 $lowest_price -= $product->discount;
                 $highest_price -= $product->discount;
             }
         }
 
         foreach ($product->taxes as $product_tax) {
-            if($product_tax->tax_type == 'percent'){
+            if ($product_tax->tax_type == 'percent') {
                 $lowest_price += ($lowest_price * $product_tax->tax) / 100;
                 $highest_price += ($highest_price * $product_tax->tax) / 100;
-            }
-            elseif($product_tax->tax_type == 'amount'){
+            } elseif ($product_tax->tax_type == 'amount') {
                 $lowest_price += $product_tax->tax;
                 $highest_price += $product_tax->tax;
             }
@@ -760,11 +738,11 @@ if (! function_exists('homeDiscountedPrice')) {
         $lowest_price = convertPrice($lowest_price);
         $highest_price = convertPrice($highest_price);
 
-        return $lowest_price.' - '.$highest_price;
+        return $lowest_price . ' - ' . $highest_price;
     }
 }
 
-if (! function_exists('brandsOfCategory')) {
+if (!function_exists('brandsOfCategory')) {
     function brandsOfCategory($category_id)
     {
         $brands = [];
@@ -783,7 +761,7 @@ if (! function_exists('brandsOfCategory')) {
     }
 }
 
-if (! function_exists('convertPrice')) {
+if (!function_exists('convertPrice')) {
     function convertPrice($price)
     {
         $business_settings = BusinessSetting::where('type', 'system_default_currency')->first();
@@ -803,13 +781,14 @@ if (! function_exists('convertPrice')) {
 }
 
 
-function translate($key, $lang = null){
-    if($lang == null){
+function translate($key, $lang = null)
+{
+    if ($lang == null) {
         $lang = App::getLocale();
     }
 
-    $translation_def = Translation::where('lang', env('DEFAULT_LANGUAGE', 'en'))->where('lang_key', $key)->first();
-    if($translation_def == null){
+    $translation_def = Translation::with('language')->where('lang', env('DEFAULT_LANGUAGE', 'en'))->where('lang_key', $key)->first();
+    if ($translation_def == null) {
         $translation_def = new Translation;
         $translation_def->lang = env('DEFAULT_LANGUAGE', 'en');
         $translation_def->lang_key = $key;
@@ -819,13 +798,11 @@ function translate($key, $lang = null){
 
     //Check for session lang
     $translation_locale = Translation::where('lang_key', $key)->where('lang', $lang)->first();
-    if($translation_locale != null && $translation_locale->lang_value != null){
+    if ($translation_locale != null && $translation_locale->lang_value != null) {
         return $translation_locale->lang_value;
-    }
-    elseif($translation_def->lang_value != null){
+    } elseif ($translation_def->lang_value != null) {
         return $translation_def->lang_value;
-    }
-    else{
+    } else {
         return $key;
     }
 }
@@ -836,19 +813,19 @@ function remove_invalid_charcaters($str)
     return str_ireplace(array('"'), '\"', $str);
 }
 
-function getShippingCost($carts, $index){
+function getShippingCost($carts, $index)
+{
     $admin_products = array();
     $seller_products = array();
     $calculate_shipping = 0;
 
     foreach ($carts as $key => $cartItem) {
         $product = \App\Product::find($cartItem['product_id']);
-        if($product->added_by == 'admin'){
+        if ($product->added_by == 'admin') {
             array_push($admin_products, $cartItem['product_id']);
-        }
-        else{
+        } else {
             $product_ids = array();
-            if(array_key_exists($product->user_id, $seller_products)){
+            if (array_key_exists($product->user_id, $seller_products)) {
                 $product_ids = $seller_products[$product->user_id];
             }
             array_push($product_ids, $cartItem['product_id']);
@@ -859,21 +836,19 @@ function getShippingCost($carts, $index){
     //Calculate Shipping Cost
     if (get_setting('shipping_type') == 'flat_rate') {
         $calculate_shipping = get_setting('flat_rate_shipping_cost');
-    }
-    elseif (get_setting('shipping_type') == 'seller_wise_shipping') {
-        if(!empty($admin_products)){
+    } elseif (get_setting('shipping_type') == 'seller_wise_shipping') {
+        if (!empty($admin_products)) {
             $calculate_shipping = get_setting('shipping_cost_admin');
         }
-        if(!empty($seller_products)){
+        if (!empty($seller_products)) {
             foreach ($seller_products as $key => $seller_product) {
                 $calculate_shipping += \App\Shop::where('user_id', $key)->first()->shipping_cost;
             }
         }
-    }
-    elseif (get_setting('shipping_type') == 'area_wise_shipping') {
+    } elseif (get_setting('shipping_type') == 'area_wise_shipping') {
         $shipping_info = Address::where('id', $carts[0]['address_id'])->first();
         $city = City::where('name', $shipping_info->city)->first();
-        if($city != null){
+        if ($city != null) {
             $calculate_shipping = $city->cost;
         }
     }
@@ -881,35 +856,31 @@ function getShippingCost($carts, $index){
     $cartItem = $carts[$index];
     $product = \App\Product::find($cartItem['product_id']);
 
-    if($product->digital == 1) {
+    if ($product->digital == 1) {
         return $calculate_shipping = 0;
     }
 
     if (get_setting('shipping_type') == 'flat_rate') {
-        return $calculate_shipping/count($carts);
-    }
-    elseif (get_setting('shipping_type') == 'seller_wise_shipping') {
-        if($product->added_by == 'admin'){
-            return get_setting('shipping_cost_admin')/count($admin_products);
+        return $calculate_shipping / count($carts);
+    } elseif (get_setting('shipping_type') == 'seller_wise_shipping') {
+        if ($product->added_by == 'admin') {
+            return get_setting('shipping_cost_admin') / count($admin_products);
+        } else {
+            return \App\Shop::where('user_id', $product->user_id)->first()->shipping_cost / count($seller_products[$product->user_id]);
         }
-        else {
-            return \App\Shop::where('user_id', $product->user_id)->first()->shipping_cost/count($seller_products[$product->user_id]);
+    } elseif (get_setting('shipping_type') == 'area_wise_shipping') {
+        if ($product->added_by == 'admin') {
+            return $calculate_shipping / count($admin_products);
+        } else {
+            return $calculate_shipping / count($seller_products[$product->user_id]);
         }
-    }
-    elseif (get_setting('shipping_type') == 'area_wise_shipping') {
-        if($product->added_by == 'admin'){
-            return $calculate_shipping/count($admin_products);
-        }
-        else {
-            return $calculate_shipping/count($seller_products[$product->user_id]);
-        }
-    }
-    else{
+    } else {
         return \App\Product::find($cartItem['product_id'])->shipping_cost;
     }
 }
 
-function timezones(){
+function timezones()
+{
     return Timezones::timezonesToArray();
 }
 
@@ -941,7 +912,7 @@ if (!function_exists('uploaded_asset')) {
     }
 }
 
-if (! function_exists('my_asset')) {
+if (!function_exists('my_asset')) {
     /**
      * Generate an asset path for the application.
      *
@@ -951,16 +922,15 @@ if (! function_exists('my_asset')) {
      */
     function my_asset($path, $secure = null)
     {
-        if(env('FILESYSTEM_DRIVER') == 's3'){
+        if (env('FILESYSTEM_DRIVER') == 's3') {
             return Storage::disk('s3')->url($path);
-        }
-        else {
-            return app('url')->asset('public/'.$path, $secure);
+        } else {
+            return app('url')->asset('public/' . $path, $secure);
         }
     }
 }
 
-if (! function_exists('static_asset')) {
+if (!function_exists('static_asset')) {
     /**
      * Generate an asset path for the application.
      *
@@ -970,7 +940,7 @@ if (! function_exists('static_asset')) {
      */
     function static_asset($path, $secure = null)
     {
-        return app('url')->asset('public/'.$path, $secure);
+        return app('url')->asset('public/' . $path, $secure);
     }
 }
 
@@ -986,7 +956,7 @@ if (!function_exists('isHttps')) {
 if (!function_exists('getBaseURL')) {
     function getBaseURL()
     {
-        $root = (isHttps() ? "https://" : "http://").$_SERVER['HTTP_HOST'];
+        $root = (isHttps() ? "https://" : "http://") . $_SERVER['HTTP_HOST'];
         $root .= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
 
         return $root;
@@ -997,17 +967,16 @@ if (!function_exists('getBaseURL')) {
 if (!function_exists('getFileBaseURL')) {
     function getFileBaseURL()
     {
-        if(env('FILESYSTEM_DRIVER') == 's3'){
-            return env('AWS_URL').'/';
-        }
-        else {
-            return getBaseURL().'public/';
+        if (env('FILESYSTEM_DRIVER') == 's3') {
+            return env('AWS_URL') . '/';
+        } else {
+            return getBaseURL() . 'public/';
         }
     }
 }
 
 
-if (! function_exists('isUnique')) {
+if (!function_exists('isUnique')) {
     /**
      * Generate an asset path for the application.
      *
@@ -1019,7 +988,7 @@ if (! function_exists('isUnique')) {
     {
         $user = \App\User::where('email', $email)->first();
 
-        if($user == null) {
+        if ($user == null) {
             return '1'; // $user = null means we did not get any match with the email provided by the user inside the database
         } else {
             return '0';
@@ -1028,23 +997,24 @@ if (! function_exists('isUnique')) {
 }
 
 if (!function_exists('get_setting')) {
-    function get_setting($key, $default = null,$lang = false)
+    function get_setting($key, $default = null, $lang = false)
     {
-        $settings = Cache::remember('business_settings', 86400, function(){
+        $settings = Cache::remember('business_settings', 86400, function () {
             return BusinessSetting::all();
         });
 
-        if($lang == false){
+        if ($lang == false) {
             $setting = $settings->where('type', $key)->first();
-        }else{
-            $setting = $settings->where('type', $key)->where('lang',$lang)->first();
+        } else {
+            $setting = $settings->where('type', $key)->where('lang', $lang)->first();
             $setting = !$setting ? $settings->where('type', $key)->first() : $setting;
         }
         return $setting == null ? $default : $setting->value;
     }
 }
 
-function hex2rgba($color, $opacity = false) {
+function hex2rgba($color, $opacity = false)
+{
     return Colorcodeconverter::convertHexToRgba($color, $opacity);
 }
 
@@ -1079,7 +1049,8 @@ if (!function_exists('isCustomer')) {
 }
 
 if (!function_exists('formatBytes')) {
-    function formatBytes($bytes, $precision = 2) {
+    function formatBytes($bytes, $precision = 2)
+    {
         $units = array('B', 'KB', 'MB', 'GB', 'TB');
 
         $bytes = max($bytes, 0);
@@ -1095,11 +1066,10 @@ if (!function_exists('formatBytes')) {
 }
 
 // duplicates m$ excel's ceiling function
-if( !function_exists('ceiling') )
-{
+if (!function_exists('ceiling')) {
     function ceiling($number, $significance = 1)
     {
-        return ( is_numeric($number) && is_numeric($significance) ) ? (ceil($number/$significance)*$significance) : false;
+        return (is_numeric($number) && is_numeric($significance)) ? (ceil($number / $significance) * $significance) : false;
     }
 }
 
@@ -1124,12 +1094,11 @@ if (!function_exists('get_images_path')) {
         $images = get_images($given_ids, $with_trashed);
         if (!$images->isEmpty()) {
             foreach ($images as $image) {
-                $paths[] = !is_null($image) ? $image->file_name :"";
+                $paths[] = !is_null($image) ? $image->file_name : "";
             }
         }
 
         return $paths;
-
     }
 }
 
@@ -1154,10 +1123,12 @@ if (!function_exists('checkout_done')) {
             }
         }
         $vendor_commission_activation = true;
-        if(\App\Addon::where('unique_identifier', 'seller_subscription')->first() != null
+        if (
+            \App\Addon::where('unique_identifier', 'seller_subscription')->first() != null
             && \App\Addon::where('unique_identifier', 'seller_subscription')->first()->activated
-                && !get_setting('vendor_commission_activation')){
-                    $vendor_commission_activation = false;
+            && !get_setting('vendor_commission_activation')
+        ) {
+            $vendor_commission_activation = false;
         }
 
         if ($vendor_commission_activation) {
@@ -1172,8 +1143,7 @@ if (!function_exists('checkout_done')) {
                         $seller->save();
                     }
                 }
-            }
-            else {
+            } else {
                 foreach ($order->orderDetails as $key => $orderDetail) {
                     $orderDetail->payment_status = 'paid';
                     $orderDetail->save();
@@ -1185,8 +1155,7 @@ if (!function_exists('checkout_done')) {
                     }
                 }
             }
-        }
-        else {
+        } else {
             foreach ($order->orderDetails as $key => $orderDetail) {
                 $orderDetail->payment_status = 'paid';
                 $orderDetail->save();
@@ -1217,7 +1186,6 @@ if (!function_exists('wallet_payment_done')) {
         $wallet->payment_method = $payment_method;
         $wallet->payment_details = $payment_details;
         $wallet->save();
-
     }
 }
 
@@ -1231,7 +1199,6 @@ if (!function_exists('purchase_payment_done')) {
         $user->save();
 
         return 'success';
-
     }
 }
 
@@ -1240,13 +1207,15 @@ if (!function_exists('commission_calculation')) {
     function commission_calculation($order)
     {
         $vendor_commission_activation = true;
-        if(\App\Addon::where('unique_identifier', 'seller_subscription')->first() != null
+        if (
+            \App\Addon::where('unique_identifier', 'seller_subscription')->first() != null
             && \App\Addon::where('unique_identifier', 'seller_subscription')->first()->activated
-                && !get_setting('vendor_commission_activation')){
-                    $vendor_commission_activation = false;
+            && !get_setting('vendor_commission_activation')
+        ) {
+            $vendor_commission_activation = false;
         }
 
-        if($vendor_commission_activation){
+        if ($vendor_commission_activation) {
             if ($order->payment_type == 'cash_on_delivery') {
                 foreach ($order->orderDetails as $key => $orderDetail) {
                     $orderDetail->payment_status = 'paid';
@@ -1281,8 +1250,7 @@ if (!function_exists('commission_calculation')) {
                         $commission_history->save();
                     }
                 }
-            }
-            elseif ($order->manual_payment) {
+            } elseif ($order->manual_payment) {
                 foreach ($order->orderDetails as $key => $orderDetail) {
                     $orderDetail->payment_status = 'paid';
                     $orderDetail->save();
@@ -1335,8 +1303,9 @@ if (!function_exists('commission_calculation')) {
 
 //Send Notification
 if (!function_exists('send_notification')) {
-    function send_notification($order, $order_status) {
-        if($order->seller_id == \App\User::where('user_type', 'admin')->first()->id) {
+    function send_notification($order, $order_status)
+    {
+        if ($order->seller_id == \App\User::where('user_type', 'admin')->first()->id) {
             $users = User::findMany([Auth::user()->id, $order->seller_id]);
         } else {
             $users = User::findMany([Auth::user()->id, $order->seller_id, \App\User::where('user_type', 'admin')->first()->id]);
@@ -1354,7 +1323,8 @@ if (!function_exists('send_notification')) {
 }
 
 if (!function_exists('send_firebase_notification')) {
-    function send_firebase_notification($req) {
+    function send_firebase_notification($req)
+    {
         $url = 'https://fcm.googleapis.com/fcm/send';
         $dataArr = array(
             'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
@@ -1394,5 +1364,3 @@ if (!function_exists('send_firebase_notification')) {
         return $result;
     }
 }
-
-?>

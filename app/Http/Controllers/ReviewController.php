@@ -18,7 +18,7 @@ class ReviewController extends Controller
      */
     public function index(Request $request)
     {
-        $reviews = Review::orderBy('created_at', 'desc')->paginate(15);
+        $reviews = Review::with('user', 'product')->orderBy('created_at', 'desc')->paginate(15);
         return view('backend.product.reviews.index', compact('reviews'));
     }
 
@@ -26,15 +26,15 @@ class ReviewController extends Controller
     public function seller_reviews()
     {
         $reviews = DB::table('reviews')
-                    ->orderBy('id', 'desc')
-                    ->join('products', 'reviews.product_id', '=', 'products.id')
-                    ->where('products.user_id', Auth::user()->id)
-                    ->select('reviews.id')
-                    ->distinct()
-                    ->paginate(9);
+            ->orderBy('id', 'desc')
+            ->join('products', 'reviews.product_id', '=', 'products.id')
+            ->where('products.user_id', Auth::user()->id)
+            ->select('reviews.id')
+            ->distinct()
+            ->paginate(9);
 
         foreach ($reviews as $key => $value) {
-            $review = \App\Review::find($value->id);
+            $review = \App\Review::with('user', 'product')->find($value->id);
             $review->viewed = 1;
             $review->save();
         }
@@ -66,12 +66,11 @@ class ReviewController extends Controller
         $review->rating = $request->rating;
         $review->comment = $request->comment;
         $review->viewed = '0';
-        if($review->save()){
+        if ($review->save()) {
             $product = Product::findOrFail($request->product_id);
-            if(count(Review::where('product_id', $product->id)->where('status', 1)->get()) > 0){
-                $product->rating = Review::where('product_id', $product->id)->where('status', 1)->sum('rating')/count(Review::where('product_id', $product->id)->where('status', 1)->get());
-            }
-            else {
+            if (count(Review::where('product_id', $product->id)->where('status', 1)->get()) > 0) {
+                $product->rating = Review::where('product_id', $product->id)->where('status', 1)->sum('rating') / count(Review::where('product_id', $product->id)->where('status', 1)->get());
+            } else {
                 $product->rating = 0;
             }
             $product->save();
@@ -133,12 +132,11 @@ class ReviewController extends Controller
     {
         $review = Review::findOrFail($request->id);
         $review->status = $request->status;
-        if($review->save()){
+        if ($review->save()) {
             $product = Product::findOrFail($review->product->id);
-            if(count(Review::where('product_id', $product->id)->where('status', 1)->get()) > 0){
-                $product->rating = Review::where('product_id', $product->id)->where('status', 1)->sum('rating')/count(Review::where('product_id', $product->id)->where('status', 1)->get());
-            }
-            else {
+            if (count(Review::where('product_id', $product->id)->where('status', 1)->get()) > 0) {
+                $product->rating = Review::where('product_id', $product->id)->where('status', 1)->sum('rating') / count(Review::where('product_id', $product->id)->where('status', 1)->get());
+            } else {
                 $product->rating = 0;
             }
             $product->save();

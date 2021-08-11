@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use App;
+use App\Translation;
 use Session;
 use Config;
 
@@ -18,11 +19,10 @@ class Language
      */
     public function handle($request, Closure $next)
     {
-        if(Session::has('locale')){
+        if (Session::has('locale')) {
             $locale = Session::get('locale');
-        }
-        else{
-            $locale = env('DEFAULT_LANGUAGE','en');
+        } else {
+            $locale = env('DEFAULT_LANGUAGE', 'en');
         }
 
         App::setLocale($locale);

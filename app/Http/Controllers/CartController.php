@@ -17,17 +17,17 @@ class CartController extends Controller
     public function index(Request $request)
     {
         //dd($cart->all());
-        $categories = Category::all();
-        if(auth()->user() != null) {
+        $categories = Category::with('category_translations', 'products', 'categories')->get();
+        if (auth()->user() != null) {
             $user_id = Auth::user()->id;
-            if($request->session()->get('temp_user_id')) {
+            if ($request->session()->get('temp_user_id')) {
                 Cart::where('temp_user_id', $request->session()->get('temp_user_id'))
-                        ->update(
-                                [
-                                    'user_id' => $user_id,
-                                    'temp_user_id' => null
-                                ]
-                );
+                    ->update(
+                        [
+                            'user_id' => $user_id,
+                            'temp_user_id' => null
+                        ]
+                    );
 
                 Session::forget('temp_user_id');
             }
@@ -35,7 +35,7 @@ class CartController extends Controller
         } else {
             $temp_user_id = $request->session()->get('temp_user_id');
             // $carts = Cart::where('temp_user_id', $temp_user_id)->get();
-            $carts = ($temp_user_id != null) ? Cart::where('temp_user_id', $temp_user_id)->get() : [] ;
+            $carts = ($temp_user_id != null) ? Cart::where('temp_user_id', $temp_user_id)->get() : [];
         }
 
 
@@ -50,16 +50,16 @@ class CartController extends Controller
 
     public function addToCart(Request $request)
     {
-        $product = Product::find($request->id);
+        $product = Product::with('product_translations', 'user', 'stocks', 'taxes')->find($request->id);
         $carts = array();
         $data = array();
 
-        if(auth()->user() != null) {
+        if (auth()->user() != null) {
             $user_id = Auth::user()->id;
             $data['user_id'] = $user_id;
-            $carts = Cart::where('user_id', $user_id)->get();
+            $carts = Cart::with('product')->where('user_id', $user_id)->get();
         } else {
-            if($request->session()->get('temp_user_id')) {
+            if ($request->session()->get('temp_user_id')) {
                 $temp_user_id = $request->session()->get('temp_user_id');
             } else {
                 $temp_user_id = bin2hex(random_bytes(10));
@@ -75,41 +75,40 @@ class CartController extends Controller
         $str = '';
         $tax = 0;
 
-        if($product->digital != 1 && $request->quantity < $product->min_qty) {
+        if ($product->digital != 1 && $request->quantity < $product->min_qty) {
             return array(
                 'status' => 0,
                 'cart_count' => count($carts),
-                'modal_view' => view('frontend.partials.minQtyNotSatisfied', [ 'min_qty' => $product->min_qty ])->render(),
+                'modal_view' => view('frontend.partials.minQtyNotSatisfied', ['min_qty' => $product->min_qty])->render(),
                 'nav_cart_view' => view('frontend.partials.cart')->render(),
             );
         }
 
 
         //check the color enabled or disabled for the product
-        if($request->has('color')) {
+        if ($request->has('color')) {
             $str = $request['color'];
         }
 
         if ($product->digital != 1) {
             //Gets all the choice values of customer choice option and generate a string like Black-S-Cotton
             foreach (json_decode(Product::find($request->id)->choice_options) as $key => $choice) {
-                if($str != null){
-                    $str .= '-'.str_replace(' ', '', $request['attribute_id_'.$choice->attribute_id]);
-                }
-                else{
-                    $str .= str_replace(' ', '', $request['attribute_id_'.$choice->attribute_id]);
+                if ($str != null) {
+                    $str .= '-' . str_replace(' ', '', $request['attribute_id_' . $choice->attribute_id]);
+                } else {
+                    $str .= str_replace(' ', '', $request['attribute_id_' . $choice->attribute_id]);
                 }
             }
         }
 
         $data['variation'] = $str;
 
-        if($str != null && $product->variant_product){
+        if ($str != null && $product->variant_product) {
             $product_stock = $product->stocks->where('variant', $str)->first();
             $price = $product_stock->price;
             $quantity = $product_stock->qty;
 
-            if($quantity < $request['quantity']){
+            if ($quantity < $request['quantity']) {
                 return array(
                     'status' => 0,
                     'cart_count' => count($carts),
@@ -117,8 +116,7 @@ class CartController extends Controller
                     'nav_cart_view' => view('frontend.partials.cart')->render(),
                 );
             }
-        }
-        else{
+        } else {
             $price = $product->unit_price;
         }
 
@@ -127,27 +125,26 @@ class CartController extends Controller
 
         if ($product->discount_start_date == null) {
             $discount_applicable = true;
-        }
-        elseif (strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
-            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date) {
+        } elseif (
+            strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
+            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date
+        ) {
             $discount_applicable = true;
         }
 
         if ($discount_applicable) {
-            if($product->discount_type == 'percent'){
-                $price -= ($price*$product->discount)/100;
-            }
-            elseif($product->discount_type == 'amount'){
+            if ($product->discount_type == 'percent') {
+                $price -= ($price * $product->discount) / 100;
+            } elseif ($product->discount_type == 'amount') {
                 $price -= $product->discount;
             }
         }
 
         //calculation of taxes
         foreach ($product->taxes as $product_tax) {
-            if($product_tax->tax_type == 'percent'){
+            if ($product_tax->tax_type == 'percent') {
                 $tax += ($price * $product_tax->tax) / 100;
-            }
-            elseif($product_tax->tax_type == 'amount'){
+            } elseif ($product_tax->tax_type == 'amount') {
                 $tax += $product_tax->tax;
             }
         }
@@ -155,28 +152,28 @@ class CartController extends Controller
         $data['quantity'] = $request['quantity'];
         $data['price'] = $price;
         $data['tax'] = $tax;
-//        $data['shipping'] = 0;
+        //        $data['shipping'] = 0;
         $data['shipping_cost'] = 0;
         $data['product_referral_code'] = null;
         $data['cash_on_delivery'] = $product->cash_on_delivery;
         $data['digital'] = $product->digital;
 
-        if ($request['quantity'] == null){
+        if ($request['quantity'] == null) {
             $data['quantity'] = 1;
         }
 
-        if(Cookie::has('referred_product_id') && Cookie::get('referred_product_id') == $product->id) {
+        if (Cookie::has('referred_product_id') && Cookie::get('referred_product_id') == $product->id) {
             $data['product_referral_code'] = Cookie::get('product_referral_code');
         }
 
-        if($carts && count($carts) > 0){
+        if ($carts && count($carts) > 0) {
             $foundInCart = false;
 
-            foreach ($carts as $key => $cartItem){
-                if($cartItem['product_id'] == $request->id) {
+            foreach ($carts as $key => $cartItem) {
+                if ($cartItem['product_id'] == $request->id) {
                     $product_stock = $product->stocks->where('variant', $str)->first();
                     $quantity = $product_stock->qty;
-                    if($quantity < $cartItem['quantity'] + $request['quantity']){
+                    if ($quantity < $cartItem['quantity'] + $request['quantity']) {
                         return array(
                             'status' => 0,
                             'cart_count' => count($carts),
@@ -184,7 +181,7 @@ class CartController extends Controller
                             'nav_cart_view' => view('frontend.partials.cart')->render(),
                         );
                     }
-                    if(($str != null && $cartItem['variation'] == $str) || $str == null){
+                    if (($str != null && $cartItem['variation'] == $str) || $str == null) {
                         $foundInCart = true;
 
                         $cartItem['quantity'] += $request['quantity'];
@@ -195,12 +192,11 @@ class CartController extends Controller
             if (!$foundInCart) {
                 Cart::create($data);
             }
-        }
-        else{
+        } else {
             Cart::create($data);
         }
 
-        if(auth()->user() != null) {
+        if (auth()->user() != null) {
             $user_id = Auth::user()->id;
             $carts = Cart::where('user_id', $user_id)->get();
         } else {
@@ -219,12 +215,12 @@ class CartController extends Controller
     public function removeFromCart(Request $request)
     {
         Cart::destroy($request->id);
-        if(auth()->user() != null) {
+        if (auth()->user() != null) {
             $user_id = Auth::user()->id;
-            $carts = Cart::where('user_id', $user_id)->get();
+            $carts = Cart::with('user', 'product')->where('user_id', $user_id)->get();
         } else {
             $temp_user_id = $request->session()->get('temp_user_id');
-            $carts = Cart::where('temp_user_id', $temp_user_id)->get();
+            $carts = Cart::with('user', 'product')->where('temp_user_id', $temp_user_id)->get();
         }
 
         return array(
@@ -239,13 +235,13 @@ class CartController extends Controller
     {
         $object = Cart::findOrFail($request->id);
 
-        if($object['id'] == $request->id){
-            $product = \App\Product::find($object['product_id']);
+        if ($object['id'] == $request->id) {
+            $product = \App\Product::with('product_translations', 'user', 'product_translations', 'stocks', 'taxes')->find($object['product_id']);
             $product_stock = $product->stocks->where('variant', $object['variation'])->first();
             $quantity = $product_stock->qty;
-            
-            if($quantity >= $request->quantity) {
-                if($request->quantity >= $product->min_qty){
+
+            if ($quantity >= $request->quantity) {
+                if ($request->quantity >= $product->min_qty) {
                     $object['quantity'] = $request->quantity;
                 }
             }
@@ -253,12 +249,12 @@ class CartController extends Controller
             $object->save();
         }
 
-        if(auth()->user() != null) {
+        if (auth()->user() != null) {
             $user_id = Auth::user()->id;
-            $carts = Cart::where('user_id', $user_id)->get();
+            $carts = Cart::with('user', 'product')->where('user_id', $user_id)->get();
         } else {
             $temp_user_id = $request->session()->get('temp_user_id');
-            $carts = Cart::where('temp_user_id', $temp_user_id)->get();
+            $carts = Cart::with('user', 'product')->where('temp_user_id', $temp_user_id)->get();
         }
 
         return array(
