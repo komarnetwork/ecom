@@ -2,12 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Validator;
 use App\BlogCategory;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Yajra\Datatables\Datatables;
+use App\Http\Controllers\Controller;
 
 class BlogCategoryController extends Controller
 {
+    //*** JSON Request
+
+    public function datatables()
+    {
+        $datas = BlogCategory::orderBy('id', 'desc')->get();
+        //--- Integrating This Collection Into Datatables
+        return Datatables::of($datas)
+            ->addColumn('action', function (BlogCategory $data) {
+                return '<div class="action-list"><a data-href="' . route('cblog.edit', $data->id) . '" class="btn btn-soft-primary btn-icon btn-circle btn-sm"> <i class="las la-pen"></i></a>
+                <a href="javascript:;" data-href="' . route('cblog.delete', $data->id) . '" data-toggle="modal" data-target="#delete-modal" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"><i class="las la-trash"></i></a></div>';
+            })
+            ->toJson(); //--- Returning Json Data To Client Side
+    }
     /**
      * Display a listing of the resource.
      *
@@ -15,16 +31,8 @@ class BlogCategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $sort_search = null;
-        $categories = BlogCategory::with('posts')->orderBy('category_name', 'asc');
-
-        if ($request->has('search')) {
-            $sort_search = $request->search;
-            $categories = $categories->where('category_name', 'like', '%' . $sort_search . '%');
-        }
-
-        $categories = $categories->paginate(15);
-        return view('backend.blog_system.category.index', compact('categories', 'sort_search'));
+        // return "dad";
+        return view('backend.blog_system.category.index');
     }
 
     /**
@@ -34,8 +42,7 @@ class BlogCategoryController extends Controller
      */
     public function create()
     {
-        $all_categories = BlogCategory::all();
-        return view('backend.blog_system.category.create', compact('all_categories'));
+        return view('backend.blog_system.category.create');
     }
 
     /**
@@ -46,21 +53,45 @@ class BlogCategoryController extends Controller
      */
     public function store(Request $request)
     {
+        //--- Validation Section
+        // $rules = [
+        //     'name' => 'required|unique:blog_categories|max:20',
+        //     'slug' => 'unique:blog_categories|max:20'
+        // ];
+        // $customs = [
+        //     'name.unique' => 'This name has already been taken.',
+        //     'slug.unique' => 'This slug has already been taken.'
+        // ];
 
         $request->validate([
-            'category_name' => 'required|max:255',
+            'name' => 'required|unique:blog_categories|max:20',
+            'slug' => 'unique:blog_categories|max:20'
         ]);
 
-        $category = new BlogCategory;
+        // $validator = Validator::make($request->all(), $rules, $customs);
+        // if ($validator->fails()) {
+        //     return response()->json(array('errors' => $validator->getMessageBag()->toArray()));
+        // }
+        //--- Validation Section Ends
 
-        $category->category_name = $request->category_name;
-        $category->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->category_name));
+        //--- Logic Section
+        // $data = new BlogCategory;
+        // $input = $request->all();
+        // $data->fill($input)->save();
 
-        $category->save();
+        $data = BlogCategory::create([
+            'name' => $request->name,
+            'slug' => Str::slug($request->name)
+        ]);
+        $data->save();
+        //--- Logic Section Ends
 
-
+        //--- Redirect Section
+        // $msg = 'New Data Added Successfully.';
+        // return response()->json($msg);
         flash(translate('Blog category has been created successfully'))->success();
-        return redirect()->route('blog-category.index');
+        return redirect()->route('cblog.index');
+        //--- Redirect Section Ends
     }
 
     /**
@@ -80,12 +111,18 @@ class BlogCategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
-        $cateogry = BlogCategory::find($id);
-        $all_categories = BlogCategory::all();
 
-        return view('backend.blog_system.category.edit',  compact('cateogry', 'all_categories'));
+    //*** GET Request
+    public function edit(Request $request, $id)
+    {
+        if ($request->isMethod('post')) {
+            # code...
+            $data = $request->all();
+
+            dd($data);
+        }
+        // $data = BlogCategory::findOrFail($id);
+        // return view('backend.blog_system.category.edit',  compact('data'));
     }
 
     /**
@@ -95,22 +132,38 @@ class BlogCategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+    //*** POST Request
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'category_name' => 'required|max:255',
-        ]);
+        //--- Validation Section
+        $rules = [
+            'name' => 'unique:blog_categories,name,' . $id,
+            'slug' => 'unique:blog_categories,slug,' . $id
+        ];
+        $customs = [
+            'name.unique' => 'This name has already been taken.',
+            'slug.unique' => 'This slug has already been taken.'
+        ];
+        $validator = Validator::make($request->all(), $rules, $customs);
 
-        $category = BlogCategory::find($id);
+        if ($validator->fails()) {
+            return response()->json(array('errors' => $validator->getMessageBag()->toArray()));
+        }
+        //--- Validation Section Ends
 
-        $category->category_name = $request->category_name;
-        $category->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->category_name));
+        //--- Logic Section
+        $data = BlogCategory::findOrFail($id);
+        $input = $request->all();
+        $data->update($input);
+        //--- Logic Section Ends
 
-        $category->save();
+        // flash(translate('Blog category has been updated successfully'))->success();
 
-
-        flash(translate('Blog category has been updated successfully'))->success();
-        return redirect()->route('blog-category.index');
+        //--- Redirect Section
+        $msg = 'Data Updated Successfully.';
+        return response()->json($msg);
+        //--- Redirect Section Ends
     }
 
     /**
@@ -121,8 +174,5 @@ class BlogCategoryController extends Controller
      */
     public function destroy($id)
     {
-        BlogCategory::find($id)->delete();
-
-        return redirect('admin/blog-category');
     }
 }

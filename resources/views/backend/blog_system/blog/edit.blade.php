@@ -11,32 +11,27 @@
             <div class="card-body">
                 <form id="add_form" class="form-horizontal" action="{{ route('blog.update',$blog->id) }}" method="POST">
                     @csrf
-                    @method('PATCH')
                     <div class="form-group row">
                         <label class="col-md-3 col-form-label">
                             {{translate('Blog Title')}}
                             <span class="text-danger">*</span>
                         </label>
                         <div class="col-md-9">
-                            <input type="text" placeholder="{{translate('Blog Title')}}" onkeyup="makeSlug(this.value)" id="title" name="title" value="{{ $blog->title }}" class="form-control" required>
+                            <input type="text" placeholder="{{translate('Blog Title')}}" onkeyup="makeSlug(this.value)"
+                                id="title" name="title" value="{{ $blog->title }}" class="form-control" required>
                         </div>
                     </div>
                     <div class="form-group row" id="category">
                         <label class="col-md-3 col-from-label">
-                            {{translate('Category')}} 
+                            {{translate('Category')}}
                             <span class="text-danger">*</span>
                         </label>
                         <div class="col-md-9">
-                            <select
-                                class="form-control aiz-selectpicker"
-                                name="category_id"
-                                id="category_id"
-                                data-live-search="true"
-                                required
-                                @if($blog->category != null)
+                            <select class="form-control aiz-selectpicker" name="category_id" id="category_id"
+                                data-live-search="true" required @if($blog->category != null)
                                 data-selected="{{ $blog->category->id }}"
                                 @endif
-                            >
+                                >
                                 <option>--</option>
                                 @foreach ($blog_categories as $category)
                                 <option value="{{ $category->id }}">
@@ -46,18 +41,19 @@
                             </select>
                         </div>
                     </div>
-                    
-                    
+
+
                     <div class="form-group row">
                         <label class="col-md-3 col-form-label">{{translate('Slug')}}</label>
                         <div class="col-md-9">
-                            <input type="text" placeholder="{{translate('Slug')}}" name="slug" id="slug" value="{{ $blog->slug }}" class="form-control" required>
+                            <input type="text" placeholder="{{translate('Slug')}}" name="slug" id="slug"
+                                value="{{ $blog->slug }}" class="form-control" required>
                         </div>
                     </div>
-                    
+
                     <div class="form-group row">
                         <label class="col-md-3 col-form-label" for="signinSrEmail">
-                            {{translate('Banner')}} 
+                            {{translate('Banner')}}
                             <small>(1300x650)</small>
                         </label>
                         <div class="col-md-9">
@@ -74,17 +70,18 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group row">
                         <label class="col-md-3 col-form-label">
                             {{translate('Short Description')}}
                             <span class="text-danger">*</span>
                         </label>
                         <div class="col-md-9">
-                            <textarea name="short_description" rows="5" class="form-control">{{ $blog->short_description }}</textarea>
+                            <textarea name="short_description" rows="5"
+                                class="form-control">{{ $blog->short_description }}</textarea>
                         </div>
                     </div>
-                    
+
                     <div class="form-group row">
                         <label class="col-md-3 col-from-label">
                             {{translate('Description')}}
@@ -93,17 +90,18 @@
                             <textarea class="aiz-text-editor" name="description">{{ $blog->description }}</textarea>
                         </div>
                     </div>
-                    
+
                     <div class="form-group row">
                         <label class="col-md-3 col-form-label">{{translate('Meta Title')}}</label>
                         <div class="col-md-9">
-                            <input type="text" class="form-control" name="meta_title" value="{{ $blog->meta_title }}" placeholder="{{translate('Meta Title')}}">
+                            <input type="text" class="form-control" name="meta_title" value="{{ $blog->meta_title }}"
+                                placeholder="{{translate('Meta Title')}}">
                         </div>
                     </div>
-                    
+
                     <div class="form-group row">
                         <label class="col-md-3 col-form-label" for="signinSrEmail">
-                            {{translate('Meta Image')}} 
+                            {{translate('Meta Image')}}
                             <small>(200x200)+</small>
                         </label>
                         <div class="col-md-9">
@@ -114,7 +112,8 @@
                                     </div>
                                 </div>
                                 <div class="form-control file-amount">{{ translate('Choose File') }}</div>
-                                <input type="hidden" name="meta_img" class="selected-files" value="{{ $blog->meta_img }}">
+                                <input type="hidden" name="meta_img" class="selected-files"
+                                    value="{{ $blog->meta_img }}">
                             </div>
                             <div class="file-preview box sm">
                             </div>
@@ -124,7 +123,8 @@
                     <div class="form-group row">
                         <label class="col-md-3 col-form-label">{{translate('Meta Description')}}</label>
                         <div class="col-md-9">
-                            <textarea name="meta_description" rows="5" class="form-control">{{ $blog->meta_description }}</textarea>
+                            <textarea name="meta_description" rows="5"
+                                class="form-control">{{ $blog->meta_description }}</textarea>
                         </div>
                     </div>
 
@@ -133,10 +133,11 @@
                             {{translate('Meta Keywords')}}
                         </label>
                         <div class="col-md-9">
-                            <input type="text" class="form-control" id="meta_keywords" name="meta_keywords" value="{{ $blog->meta_keywords }}" placeholder="{{translate('Meta Keywords')}}">
+                            <input type="text" class="form-control" id="meta_keywords" name="meta_keywords"
+                                value="{{ $blog->meta_keywords }}" placeholder="{{translate('Meta Keywords')}}">
                         </div>
                     </div>
-                    
+
                     <div class="form-group mb-0 text-right">
                         <button type="submit" class="btn btn-primary">
                             {{translate('Save')}}

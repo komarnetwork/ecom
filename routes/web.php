@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\{Route, Auth};
 /*
   |--------------------------------------------------------------------------
   | Web Routes
@@ -331,12 +332,14 @@ Route::post('/aamarpay/fail', 'AamarpayController@fail')->name('aamarpay.fail');
 
 
 //Blog Section
-Route::get('/blog', 'BlogController@all_blog')->name('blog');
-Route::get('/blog/{slug}', 'BlogController@blog_details')->name('blog.details');
-
+// Route::get('/blog', 'BlogController@all_blog')->name('blog');
+// Route::get('/blog/{slug}', 'BlogController@blog_details')->name('blog.details');
 
 //mobile app balnk page for webview
 Route::get('/mobile-page/{slug}', 'PageController@mobile_custom_page')->name('mobile.custom-pages');
 
+Route::get('/blog', 'BlogController@all_blog')->name('blog');
+
 //Custom page
 Route::get('/{slug}', 'PageController@show_custom_page')->name('custom-pages.show_custom_page');
+Route::get('/{slug}', 'BlogController@blog_details')->name('blog.details');

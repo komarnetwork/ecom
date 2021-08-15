@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\{Route, Auth};
 /*
   |--------------------------------------------------------------------------
   | Admin Routes
@@ -16,7 +17,7 @@ Route::get('/update/step1', 'UpdateController@step1')->name('update.step1');
 Route::get('/update/step2', 'UpdateController@step2')->name('update.step2');
 
 Route::get('/admin', 'HomeController@admin_dashboard')->name('admin.dashboard')->middleware(['auth', 'admin']);
-Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function() {
+Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function () {
     //Update Routes
 
     Route::resource('categories', 'CategoryController');
@@ -39,7 +40,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
     Route::post('/products/approved', 'ProductController@updateProductApproval')->name('products.approved');
     Route::post('/products/get_products_by_subcategory', 'ProductController@get_products_by_subcategory')->name('products.get_products_by_subcategory');
     Route::post('/bulk-product-delete', 'ProductController@bulk_product_delete')->name('bulk-product-delete');
-    
+
 
 
     Route::resource('sellers', 'SellerController');
@@ -120,7 +121,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
     Route::post('/languages/key_value_store', 'LanguageController@key_value_store')->name('languages.key_value_store');
 
     // website setting
-    Route::group(['prefix' => 'website'], function() {
+    Route::group(['prefix' => 'website'], function () {
         Route::get('/footer', 'WebsiteController@footer')->name('website.footer');
         Route::get('/header', 'WebsiteController@header')->name('website.header');
         Route::get('/appearance', 'WebsiteController@appearance')->name('website.appearance');
@@ -186,11 +187,35 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
     Route::get('/wallet-history', 'ReportController@wallet_transaction_history')->name('wallet-history.index');
 
     //Blog Section
-    Route::resource('blog-category', 'BlogCategoryController');
-    Route::get('/blog-category/destroy/{id}', 'BlogCategoryController@destroy')->name('blog-category.destroy');
-    Route::resource('blog', 'BlogController');
-    Route::get('/blog/destroy/{id}', 'BlogController@destroy')->name('blog.destroy');
+    Route::get('/blog/category/datatables', 'BlogCategoryController@datatables')->name('cblog.datatables');
+    Route::get('/blog/category', 'BlogCategoryController@index')->name('cblog.index');
+
+    Route::get('/blog/category/create', 'BlogCategoryController@create')->name('cblog.create');
+    Route::post('/blog/category/create', 'BlogCategoryController@store')->name('cblog.store');
+
+    Route::get('/blog/category/edit/{id}', 'BlogCategoryController@edit')->name('cblog.edit');
+    Route::post('/blog/category/edit/{id}', 'BlogCategoryController@update')->name('cblog.update');
+
+
+    Route::get('/blog/category/delete/{id}', 'BlogCategoryController@destroy')->name('cblog.delete');
+
+    // Route::resource('/blog-category', 'BlogCategoryController');
+    // Route::get('/blog-category/destroy/{id}', 'BlogCategoryController@destroy')->name('blog-category.destroy');
+    // Route::resource('blog', 'BlogController');
+    // Route::get('/blog/destroy/{id}', 'BlogController@destroy')->name('blog.destroy');
+
+
     Route::post('/blog/change-status', 'BlogController@change_status')->name('blog.change-status');
+
+    Route::get('/blog/datatables', 'BlogController@datatables')->name('blog.datatables'); //JSON REQUEST
+
+    Route::get('/blog', 'Blogcontroller@index')->name('blog.index');
+    Route::get('/blog/create', 'BlogController@create')->name('blog.create');
+    Route::post('/blog/create', 'BlogController@store')->name('blog.store');
+    Route::get('/blog/edit/{id}', 'BlogController@edit')->name('blog.edit');
+    Route::post('/blog/edit/{id}', 'BlogController@update')->name('blog.update');
+    Route::get('/blog/delete/{id}', 'BlogController@destroy')->name('blog.delete');
+    Route::get('/blog/destroy/{id}', 'BlogController@destroy')->name('blog.destroy');
 
     //Coupons
     Route::resource('coupon', 'CouponController');

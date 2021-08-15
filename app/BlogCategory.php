@@ -7,10 +7,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BlogCategory extends Model
 {
-    use SoftDeletes;
-    
-    public function posts()
+    protected $fillable = ['name', 'slug'];
+    // public $timestamps = true;
+
+    public function blogs()
     {
-        return $this->hasMany(Blog::class);
+        return $this->hasMany('App\Blog', 'category_id');
+    }
+
+    public function setSlugAttribute($value)
+    {
+        $this->attributes['slug'] = str_replace(' ', '-', $value);
     }
 }

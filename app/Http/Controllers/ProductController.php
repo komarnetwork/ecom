@@ -38,7 +38,7 @@ class ProductController extends Controller
         $query = null;
         $sort_search = null;
 
-        $products = Product::with('user', 'category', 'brand', 'stocks', 'taxes')->where('added_by', 'admin');
+        $products = Product::with('product_translations', 'user', 'category', 'brand', 'stocks', 'taxes')->where('added_by', 'admin');
 
         if ($request->type != null) {
             $var = explode(",", $request->type);
@@ -176,17 +176,16 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        // $this->validate($request, [
-        //     'nama' => 'required|max:100',
-        //     'category_id' => 'required',
-        //     'brand_id' => 'required',
-        //     'photos' => 'required',
-        //     'thumbnail_img' => 'image|max:100|required',
-        //     'tags' => 'required',
-        //     'unit_price' => 'required|numeric',
-        //     'unit' => 'required',
-        //     'low_stock_quantity' => 'required'
-        // ]);
+        $this->validate($request, [
+            'name' => 'required|max:100',
+            'category_id' => 'required',
+            'brand_id' => 'required',
+            'photos' => 'required',
+            'tags' => 'required',
+            'unit_price' => 'required|numeric',
+            'unit' => 'required',
+            'low_stock_quantity' => 'required'
+        ]);
 
         $refund_request_addon = \App\Addon::where('unique_identifier', 'refund_request')->first();
 

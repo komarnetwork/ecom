@@ -35,7 +35,8 @@
         "spatie/db-dumper": "2.21.1",
         "stripe/stripe-php": "^6.29",
         "twilio/sdk": "^6.1",
-        "unicodeveloper/laravel-paystack": "^1.0"
+        "unicodeveloper/laravel-paystack": "^1.0",
+        "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.6",

@@ -20,8 +20,9 @@
                             <label class="col-md-3 col-from-label">{{translate('Product Name')}} <span
                                     class="text-danger">*</span></label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" name="name"
-                                    placeholder="{{ translate('Product Name') }}" onchange="update_sku()" required>
+                                <input type="text" class="form-control @error('name') is-invalid
+                                @enderror" name="name" placeholder="{{ translate('Product Name') }}"
+                                    value="{{ old('name') }}" onchange="update_sku()" required>
                             </div>
                         </div>
                         <div class="form-group row" id="category">
@@ -42,9 +43,9 @@
                         <div class="form-group row" id="brand">
                             <label class="col-md-3 col-from-label">{{translate('Brand')}}</label>
                             <div class="col-md-8">
-                                <select class="form-control aiz-selectpicker" name="brand_id" id="brand_id"
-                                    data-live-search="true">
-                                    <option value="">{{ translate('Select Brand') }}</option>
+                                <select class="form-control @error('brand_id') is-invalid
+                                @enderror aiz-selectpicker" name="brand_id" id="brand_id" data-live-search="true">
+                                    {{-- <option value="">{{ translate('Select Brand') }}</option> --}}
                                     @foreach (\App\Brand::all() as $brand)
                                     <option value="{{ $brand->id }}">{{ $brand->getTranslation('name') }}</option>
                                     @endforeach
@@ -54,8 +55,11 @@
                         <div class="form-group row">
                             <label class="col-md-3 col-from-label">{{translate('Unit')}}</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" name="unit"
-                                    placeholder="{{ translate('Unit (e.g. KG, Pc etc)') }}" required>
+                                <select class="form-control @error('unit') is-invalid
+                                @enderror aiz-selectpicker" name="unit" id="unit" required data-live-search="true">
+                                    <option value="Pc">Pc</option>
+                                    <option value="Kg">Kg</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -70,7 +74,8 @@
                             <label class="col-md-3 col-from-label">{{translate('Tags')}} <span
                                     class="text-danger">*</span></label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control aiz-tag-input" name="tags[]"
+                                <input type="text" class="form-control @error('tags') is-invalid
+                                @enderror aiz-tag-input" name="tags[]"
                                     placeholder="{{ translate('Type and hit enter to add a tag') }}">
                                 <small
                                     class="text-muted">{{translate('This is used for search. Input those words by which cutomer can find this product.')}}</small>
@@ -121,8 +126,9 @@
                                         <div class="input-group-text bg-soft-secondary font-weight-medium">
                                             {{ translate('Browse')}}</div>
                                     </div>
-                                    <div class="form-control file-amount">{{ translate('Choose File') }}</div>
-                                    <input type="hidden" name="photos" class="selected-files">
+                                    <div class="form-control @error('photos') is-invalid
+                                    @enderror file-amount">{{ translate('Choose File') }}</div>
+                                    <input type="hidden" name="photos" class="selected-files" required>
                                 </div>
                                 <div class="file-preview box sm">
                                 </div>
@@ -176,60 +182,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0 h6">{{translate('Product Variation')}}</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-group row">
-                            <div class="col-md-3">
-                                <input type="text" class="form-control" value="{{translate('Colors')}}" disabled>
-                            </div>
-                            <div class="col-md-8">
-                                <select class="form-control aiz-selectpicker" data-live-search="true"
-                                    data-selected-text-format="count" name="colors[]" id="colors" multiple disabled>
-                                    @foreach (\App\Color::orderBy('name', 'asc')->get() as $key => $color)
-                                    <option value="{{ $color->code }}"
-                                        data-content="<span><span class='size-15px d-inline-block mr-2 rounded border' style='background:{{ $color->code }}'></span><span>{{ $color->name }}</span></span>">
-                                    </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-1">
-                                <label class="aiz-switch aiz-switch-success mb-0">
-                                    <input value="1" type="checkbox" name="colors_active">
-                                    <span></span>
-                                </label>
-                            </div>
-                        </div>
 
-                        <div class="form-group row">
-                            <div class="col-md-3">
-                                <input type="text" class="form-control" value="{{translate('Attributes')}}" disabled>
-                            </div>
-                            <div class="col-md-8">
-                                <select name="choice_attributes[]" id="choice_attributes"
-                                    class="form-control aiz-selectpicker" data-selected-text-format="count"
-                                    data-live-search="true" multiple
-                                    data-placeholder="{{ translate('Choose Attributes') }}">
-                                    @foreach (\App\Attribute::with('getTranslation')->get() as $key => $attribute)
-                                    <option value="{{ $attribute->id }}">{{ $attribute->getTranslation('name') }}
-                                    </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <p>{{ translate('Choose the attributes of this product and then input values of each attribute') }}
-                            </p>
-                            <br>
-                        </div>
-
-                        <div class="customer_choice_options" id="customer_choice_options">
-
-                        </div>
-                    </div>
-                </div>
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0 h6">{{translate('Product price + stock')}}</h5>
@@ -240,8 +193,9 @@
                                     class="text-danger">*</span></label>
                             <div class="col-md-6">
                                 <input type="number" lang="en" min="0" value="0" step="0.01"
-                                    placeholder="{{ translate('Unit price') }}" name="unit_price" class="form-control"
-                                    required>
+                                    placeholder="{{ translate('Unit price') }}" name="unit_price" class="form-control @error('unit_price') is-invalid
+
+                                    @enderror" required>
                             </div>
                         </div>
 
@@ -310,6 +264,62 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0 h6">{{translate('Product Variation')}}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" value="{{translate('Colors')}}" disabled>
+                            </div>
+                            <div class="col-md-8">
+                                <select class="form-control aiz-selectpicker" data-live-search="true"
+                                    data-selected-text-format="count" name="colors[]" id="colors" multiple disabled>
+                                    @foreach (\App\Color::orderBy('name', 'asc')->get() as $key => $color)
+                                    <option value="{{ $color->code }}"
+                                        data-content="<span><span class='size-15px d-inline-block mr-2 rounded border' style='background:{{ $color->code }}'></span><span>{{ $color->name }}</span></span>">
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input value="1" type="checkbox" name="colors_active">
+                                    <span></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" value="{{translate('Attributes')}}" disabled>
+                            </div>
+                            <div class="col-md-8">
+                                <select name="choice_attributes[]" id="choice_attributes"
+                                    class="form-control aiz-selectpicker" data-selected-text-format="count"
+                                    data-live-search="true" multiple
+                                    data-placeholder="{{ translate('Choose Attributes') }}">
+                                    @foreach (\App\Attribute::get() as $key => $attribute)
+                                    <option value="{{ $attribute->id }}">{{ $attribute->getTranslation('name') }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <p>{{ translate('Choose the attributes of this product and then input values of each attribute') }}
+                            </p>
+                            <br>
+                        </div>
+
+                        <div class="customer_choice_options" id="customer_choice_options">
+
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0 h6">{{translate('Product Description')}}</h5>
@@ -468,8 +478,8 @@
                             <label for="name">
                                 {{translate('Quantity')}}
                             </label>
-                            <input type="number" name="low_stock_quantity" value="1" min="0" step="1"
-                                class="form-control">
+                            <input type="number" name="low_stock_quantity" value="1" min="0" step="1" class="form-control @error('low_stock_quantity') is-invalid
+                                @enderror" required>
                         </div>
                     </div>
                 </div>
