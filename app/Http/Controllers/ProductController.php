@@ -99,7 +99,7 @@ class ProductController extends Controller
         $query = null;
         $seller_id = null;
         $sort_search = null;
-        $products = Product::orderBy('created_at', 'desc');
+        $products = Product::with('product_translations', 'user', 'reviews', 'stocks', 'flash_deal_product')->orderBy('created_at', 'desc');
         if ($request->has('user_id') && $request->user_id != null) {
             $products = $products->where('user_id', $request->user_id);
             $seller_id = $request->user_id;
@@ -180,11 +180,13 @@ class ProductController extends Controller
             'name' => 'required|max:100',
             'category_id' => 'required',
             'brand_id' => 'required',
-            'photos' => 'required',
+            'photos' => 'required|max:150',
             'tags' => 'required',
             'unit_price' => 'required|numeric',
             'unit' => 'required',
-            'low_stock_quantity' => 'required'
+            'current_stock' => 'required|numeric',
+            'low_stock_quantity' => 'required',
+            'meta_description' => 'max:158'
         ]);
 
         $refund_request_addon = \App\Addon::where('unique_identifier', 'refund_request')->first();
@@ -198,7 +200,7 @@ class ProductController extends Controller
                 $product->approved = 0;
             }
         } else {
-            $product->user_id = \App\User::with('products')->where('user_type', 'admin')->first()->id;
+            $product->user_id = \App\User::where('user_type', 'admin')->first()->id;
         }
         $product->category_id = $request->category_id;
         $product->brand_id = $request->brand_id;
@@ -212,7 +214,12 @@ class ProductController extends Controller
             }
         }
         $product->photos = $request->photos;
-        $product->thumbnail_img = $request->thumbnail_img;
+        // $product->thumbnail_img = $request->photos;
+
+        if ($product->thumbnail_img == null) {
+            $product->thumbnail_img = $product->photos;
+        }
+
         $product->unit = $request->unit;
         $product->min_qty = $request->min_qty;
         $product->low_stock_quantity = $request->low_stock_quantity;
@@ -442,7 +449,7 @@ class ProductController extends Controller
         Artisan::call('cache:clear');
 
         if (Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff') {
-            return redirect()->route('products.admin');
+            return redirect()->route('products.create');
         } else {
             if (\App\Addon::where('unique_identifier', 'seller_subscription')->first() != null && \App\Addon::where('unique_identifier', 'seller_subscription')->first()->activated) {
                 $seller = Auth::user()->seller;
@@ -513,6 +520,10 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $this->validate($request, [
+            'meta_description' => 'max:158'
+        ]);
+
         $refund_request_addon       = \App\Addon::where('unique_identifier', 'refund_request')->first();
         $product                    = Product::findOrFail($id);
         $product->category_id       = $request->category_id;
@@ -540,7 +551,7 @@ class ProductController extends Controller
         }
 
         $product->photos                 = $request->photos;
-        $product->thumbnail_img          = $request->thumbnail_img;
+        $product->thumbnail_img          = $product->photos;
         $product->min_qty                = $request->min_qty;
         $product->low_stock_quantity     = $request->low_stock_quantity;
         $product->stock_visibility_state = $request->stock_visibility_state;
@@ -602,7 +613,7 @@ class ProductController extends Controller
             $product->todays_deal = 1;
         }
 
-        $product->meta_title        = $request->meta_title;
+        $product->meta_title        = $product->name;
         $product->meta_description  = $request->meta_description;
         $product->meta_img          = $request->meta_img;
 

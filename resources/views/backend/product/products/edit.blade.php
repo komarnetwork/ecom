@@ -308,10 +308,7 @@
                         </div>
                     </div>
                 </div>
-                <br>
-                <div class="sku_combination" id="sku_combination">
 
-                </div>
             </div>
         </div>
 
@@ -393,6 +390,11 @@
                         </div>
                     </div>
                     @endforeach
+                </div>
+
+                {{-- Variant Product --}}
+                <br>
+                <div class="sku_combination" id="sku_combination">
                 </div>
             </div>
         </div>

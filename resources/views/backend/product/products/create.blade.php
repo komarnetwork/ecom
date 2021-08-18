@@ -5,7 +5,7 @@
     <h5 class="mb-0 h6">{{translate('Add New Product')}}</h5>
 </div>
 <div class="">
-    <form class="form form-horizontal mar-top" action="{{route('products.store')}}" method="POST"
+    <form class="form form-horizontal mar-top was-validated" action="{{route('products.store')}}" method="POST"
         enctype="multipart/form-data" id="choice_form">
         <div class="row gutters-5">
             <div class="col-lg-8">
@@ -17,22 +17,34 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group row">
-                            <label class="col-md-3 col-from-label">{{translate('Product Name')}} <span
+                            <label class="col-md-3 col-from-label"
+                                for="validationServer01">{{translate('Product Name')}} <span
                                     class="text-danger">*</span></label>
                             <div class="col-md-8">
                                 <input type="text" class="form-control @error('name') is-invalid
-                                @enderror" name="name" placeholder="{{ translate('Product Name') }}"
-                                    value="{{ old('name') }}" onchange="update_sku()" required>
+                                @enderror" name="name" id="validationServer01"
+                                    placeholder="{{ translate('Product Name') }}" value="{{ old('name') }}"
+                                    onchange="update_sku()" required>
+                                @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <div class="form-group row" id="category">
                             <label class="col-md-3 col-from-label">{{translate('Category')}} <span
                                     class="text-danger">*</span></label>
                             <div class="col-md-8">
-                                <select class="form-control aiz-selectpicker" name="category_id" id="category_id"
+                                <select class="form-control @error('category_id') is-invalid @enderror aiz-selectpicker"
+                                    name="category_id" id="category_id" data-selected="{{ ('category_id') }}"
                                     data-live-search="true" required>
+                                    @error('category_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+
+                                    <option value="" class="disabled">Choose Category</option>
                                     @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->getTranslation('name') }}</option>
+                                    <option value="{{ $category->id }}">{{ $category->getTranslation('name') }}
+                                    </option>
                                     @foreach ($category->childrenCategories as $childCategory)
                                     @include('categories.child_category', ['child_category' => $childCategory])
                                     @endforeach
@@ -46,10 +58,13 @@
                                 <select class="form-control @error('brand_id') is-invalid
                                 @enderror aiz-selectpicker" name="brand_id" id="brand_id" data-live-search="true">
                                     {{-- <option value="">{{ translate('Select Brand') }}</option> --}}
-                                    @foreach (\App\Brand::all() as $brand)
+                                    @foreach (\App\Brand::with('brand_translations')->get() as $brand)
                                     <option value="{{ $brand->id }}">{{ $brand->getTranslation('name') }}</option>
                                     @endforeach
                                 </select>
+                                @error('brand_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <div class="form-group row">
@@ -60,6 +75,9 @@
                                     <option value="Pc">Pc</option>
                                     <option value="Kg">Kg</option>
                                 </select>
+                                @error('unit')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <div class="form-group row">
@@ -71,12 +89,16 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-md-3 col-from-label">{{translate('Tags')}} <span
+                            <label class="col-md-3 col-from-label" for="validationServer02">{{translate('Tags')}} <span
                                     class="text-danger">*</span></label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control @error('tags') is-invalid
-                                @enderror aiz-tag-input" name="tags[]"
-                                    placeholder="{{ translate('Type and hit enter to add a tag') }}">
+                                <input type="text"
+                                    class="form-control @error('tags') is-invalid @enderror aiz-tag-input" name="tags[]"
+                                    id="validationServer02" value=""
+                                    placeholder="{{ translate('Type and hit enter to add a tag') }}" required>
+                                @error('tags')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                                 <small
                                     class="text-muted">{{translate('This is used for search. Input those words by which cutomer can find this product.')}}</small>
                             </div>
@@ -129,6 +151,9 @@
                                     <div class="form-control @error('photos') is-invalid
                                     @enderror file-amount">{{ translate('Choose File') }}</div>
                                     <input type="hidden" name="photos" class="selected-files" required>
+                                    @error('photos')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="file-preview box sm">
                                 </div>
@@ -145,8 +170,12 @@
                                         <div class="input-group-text bg-soft-secondary font-weight-medium">
                                             {{ translate('Browse')}}</div>
                                     </div>
-                                    <div class="form-control file-amount">{{ translate('Choose File') }}</div>
-                                    <input type="hidden" name="thumbnail_img" class="selected-files">
+                                    <div class="form-control @error('thumbnail_img') is-invalid
+                                    @enderror file-amount">{{ translate('Choose File') }}</div>
+                                    <input type="hidden" name="thumbnail_img" class="selected-files" required>
+                                    @error('thumbnail_img')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="file-preview box sm">
                                 </div>
@@ -192,10 +221,12 @@
                             <label class="col-md-3 col-from-label">{{translate('Unit price')}} <span
                                     class="text-danger">*</span></label>
                             <div class="col-md-6">
-                                <input type="number" lang="en" min="0" value="0" step="0.01"
+                                <input type="number" lang="en" min="0" value="{{ old('unit_price') }}" step="0.01"
                                     placeholder="{{ translate('Unit price') }}" name="unit_price" class="form-control @error('unit_price') is-invalid
-
                                     @enderror" required>
+                                @error('unit_price')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -243,9 +274,12 @@
                                 <label class="col-md-3 col-from-label">{{translate('Quantity')}} <span
                                         class="text-danger">*</span></label>
                                 <div class="col-md-6">
-                                    <input type="number" lang="en" min="0" value="0" step="1"
-                                        placeholder="{{ translate('Quantity') }}" name="current_stock"
-                                        class="form-control" required>
+                                    <input type="number" lang="en" min="0" value="10" step="1"
+                                        placeholder="{{ translate('Quantity') }}" name="current_stock" class="form-control @error('current_stock') is-invalid
+                                        @enderror" required>
+                                    @error('current_stock')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -258,10 +292,7 @@
                                 </div>
                             </div>
                         </div>
-                        <br>
-                        <div class="sku_combination" id="sku_combination">
 
-                        </div>
                     </div>
                 </div>
 
@@ -301,7 +332,9 @@
                                     class="form-control aiz-selectpicker" data-selected-text-format="count"
                                     data-live-search="true" multiple
                                     data-placeholder="{{ translate('Choose Attributes') }}">
-                                    @foreach (\App\Attribute::get() as $key => $attribute)
+                                    @foreach (\App\Attribute::with('attribute_translations','attribute_values')->get()
+                                    as $key =>
+                                    $attribute)
                                     <option value="{{ $attribute->id }}">{{ $attribute->getTranslation('name') }}
                                     </option>
                                     @endforeach
@@ -315,6 +348,12 @@
                         </div>
 
                         <div class="customer_choice_options" id="customer_choice_options">
+
+                        </div>
+
+                        {{-- Variant Product --}}
+                        <br>
+                        <div class="sku_combination" id="sku_combination">
 
                         </div>
                     </div>
@@ -480,6 +519,9 @@
                             </label>
                             <input type="number" name="low_stock_quantity" value="1" min="0" step="1" class="form-control @error('low_stock_quantity') is-invalid
                                 @enderror" required>
+                            @error('low_stock_quantity')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -699,6 +741,25 @@
 @section('script')
 
 <script type="text/javascript">
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (() => {
+    'use strict';
+
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    const forms = document.querySelectorAll('.needs-validation');
+
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms).forEach((form) => {
+        form.addEventListener('submit', (event) => {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+        }, false);
+    });
+    })();
+
     $("[name=shipping_type]").on("change", function (){
         $(".flat_rate_shipping_div").hide();
 
